@@ -10,36 +10,62 @@ Neon Voyage is an exciting browser-based game where you pilot a sleek neon rocke
 - Visually stunning neon graphics
 - Realistic rocket physics and breakdown mechanics
 - Score tracking
+- Mobile-friendly touch controls
 
 ## How to Play
 
-1. Open the `game.html` file in a modern web browser.
-2. Use the left and right arrow keys to navigate your rocket.
+1. Open the `Optimized Neon Rocket Game HTML.html` file in a modern web browser.
+2. Use the left and right arrow keys (on desktop) or the on-screen buttons (on mobile) to navigate your rocket.
 3. Avoid colliding with the colorful asteroids.
 4. Try to survive as long as possible and achieve the highest score!
 
 ## Game Controls
 
-- Left Arrow: Move the rocket to the left
-- Right Arrow: Move the rocket to the right
+- Desktop:
+  - Left Arrow: Move the rocket to the left
+  - Right Arrow: Move the rocket to the right
+- Mobile:
+  - Left Button: Move the rocket to the left
+  - Right Button: Move the rocket to the right
 
-## Installation
+## Installation and Serving the Game
 
-No installation is required! Simply download the `game.html` file and open it in your web browser to start playing.
+No installation is required to play locally! Simply download the `Optimized Neon Rocket Game HTML.html` file and open it in your web browser to start playing.
+
+If you want to serve the game or make it accessible online, you can use Python's built-in HTTP server and ngrok. Here's how:
+
+1. Open a terminal in the directory containing the game file.
+
+2. Start a Python HTTP server:
+   ```
+   python3 -m http.server
+   ```
+   This will start a server on port 8000 by default.
+
+3. In another terminal, use ngrok to expose your local server:
+   ```
+   ngrok http 8000
+   ```
+
+4. ngrok will provide a public URL. You can access the game by appending `/Optimized Neon Rocket Game HTML.html` to this URL.
+   For example: `https://your-ngrok-url.ngrok.io/Optimized Neon Rocket Game HTML.html`
+
+This method is great for testing or sharing the game without needing to deploy it to a web server.
 
 ## Technical Details
 
 - The game is built using HTML5 Canvas and vanilla JavaScript.
 - It features smooth animations and particle effects for an immersive experience.
-- The code is well-commented and structured for easy understanding and modification.
+- The code is optimized for performance, using techniques like off-screen rendering for stars.
+- Responsive design allows for gameplay on both desktop and mobile devices.
 
 ## Customization
 
 Feel free to modify the game to suit your preferences:
 
-- Adjust the `canvas` size in the HTML and JavaScript to change the game window size.
-- Modify the `scrollSpeed` variable to change the game's pace.
-- Alter the obstacle generation logic in the `drawObstacles` function to change the frequency and types of asteroids.
+- Adjust the `CANVAS_WIDTH` and `CANVAS_HEIGHT` constants to change the game window size.
+- Modify the `INITIAL_SCROLL_SPEED` constant to change the game's initial pace.
+- Alter the `OBSTACLE_SPAWN_CHANCE` constant to change the frequency of asteroids.
 - Customize colors and styles in the CSS section to give the game your personal touch.
 
 ## Contributing
