@@ -4,123 +4,150 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Neon Voyage</title>
+  <!-- Modern Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
-    /* Ensure the body fills the viewport */
+    /* Global Styles */
     html, body {
       margin: 0;
       padding: 0;
-      background-color: #0a0a0a;
+      background: linear-gradient(180deg, #0a0a0a, #1a1a2e);
       overflow: hidden;
       height: 100%;
+      font-family: 'Roboto', sans-serif;
+      color: #e0e0e0;
     }
-    /* The game wrapper centres the game vertically and horizontally in a column layout */
+    
+    /* Wrapper centres content */
     #gameWrapper {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
-      background-color: #0a0a0a;
+      background: linear-gradient(180deg, #0a0a0a, #1a1a2e);
+      padding: 20px;
+      box-sizing: border-box;
     }
-    /* The game container holds the fixed simulation (768×1024) */
+    
+    /* Game container with a subtle look */
     #gameContainer {
       position: relative;
       background-color: #0a0a0a;
       overflow: hidden;
-      border: 1px solid rgba(0, 255, 255, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 10px;
       box-sizing: border-box;
-      /* Width and height are updated by JavaScript to scale the game */
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      transition: box-shadow 0.3s;
     }
-    /* The canvas’s internal resolution remains fixed (simulation 768×1024),
-       but its CSS size fills its parent container */
+    #gameContainer:hover {
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+    }
+    
+    /* Canvas styles */
     #gameCanvas {
       display: block;
       width: 100%;
       height: 100%;
       border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
     }
-    /* UI overlays (info, start screen, game over, pause) remain inside the game container */
+    
+    /* UI overlays */
     #gameInfo, #startScreen, #gameOver, #pauseScreen {
       position: absolute;
       z-index: 10;
+      font-weight: 400;
     }
     #gameInfo {
-      top: 10px;
-      left: 10px;
-      padding: 10px 15px;
-      background: rgba(0, 0, 0, 0.6);
+      top: 15px;
+      left: 15px;
+      padding: 12px 20px;
+      background: rgba(0, 0, 0, 0.7);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 5px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
     }
     #gameInfo h1 {
       margin: 0;
       font-size: 28px;
       font-weight: 300;
       color: #0ff;
+      text-shadow: 0 0 10px rgba(0,255,255,0.7);
     }
     #gameInfo div {
       margin-top: 5px;
       font-size: 18px;
       color: #0ff;
     }
+    
     #startScreen, #gameOver, #pauseScreen {
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: rgba(0, 0, 0, 0.85);
-      padding: 30px;
-      border-radius: 8px;
-      text-align: centre;
+      background: rgba(0, 0, 0, 0.9);
+      padding: 30px 40px;
+      border-radius: 10px;
+      text-align: center;
       color: #e0e0e0;
+      box-shadow: 0 0 20px rgba(0,0,0,0.7);
     }
-    #startScreen h2 {
+    #startScreen h2, #gameOver h2 {
       color: #0ff;
-      font-size: 30px;
-      margin-bottom: 15px;
+      font-size: 32px;
+      margin-bottom: 20px;
     }
     #instructions {
       font-size: 16px;
       color: #ccc;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
       line-height: 1.5;
     }
+    
+    /* Buttons styling */
     #startBtn, #restartBtn {
-      background: #0ff;
+      background: linear-gradient(145deg, #0ff, #00dddd);
       color: #000;
       font-size: 18px;
-      padding: 8px 16px;
+      padding: 10px 20px;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: background 0.3s, transform 0.2s;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     }
     #startBtn:hover, #restartBtn:hover {
-      background: #00dddd;
+      background: linear-gradient(145deg, #00dddd, #0ff);
+      transform: translateY(-2px);
+    }
+    #startBtn:active, #restartBtn:active {
+      transform: translateY(0);
     }
     #gameOverText {
-      color: #f33;
+      color: #ff5555;
       font-size: 36px;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px rgba(255,85,85,0.7);
     }
     #finalScore {
-      font-size: 20px;
-      margin-bottom: 15px;
+      font-size: 22px;
+      margin-bottom: 20px;
     }
     #restartInfo {
       color: #0ff;
       font-size: 16px;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
     }
-    /* The on‑screen controls now appear as a normal flow element underneath the game container */
+    
+    /* On-screen controls styling */
     #controls {
-      margin-top: 10px;
+      margin-top: 20px;
       display: flex;
       gap: 20px;
+      justify-content: center;
     }
     .control-btn {
-      background: rgba(0, 255, 255, 0.2);
+      background: linear-gradient(145deg, rgba(0, 255, 255, 0.3), rgba(0, 255, 255, 0.1));
       border: none;
       color: #0ff;
       font-size: 24px;
@@ -130,26 +157,29 @@
       cursor: pointer;
       transition: transform 0.2s, background 0.2s;
       user-select: none;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     }
     .control-btn:hover {
-      background: rgba(0, 255, 255, 0.4);
+      background: linear-gradient(145deg, rgba(0, 255, 255, 0.4), rgba(0, 255, 255, 0.2));
       transform: scale(1.1);
     }
     .control-btn:active {
       transform: scale(0.95);
     }
+    
     /* Hide movement controls on desktop */
     @media (min-width: 700px) {
       #controls { display: none; }
     }
-    /* Adjust text sizes for smaller screens */
+    
+    /* Adjust UI text sizes for smaller screens */
     @media (max-width: 600px) {
-      #gameInfo h1 { font-size: 24px; }
-      #gameInfo div { font-size: 14px; }
-      #startScreen h2 { font-size: 24px; }
-      #instructions { font-size: 14px; }
-      #startBtn, #restartBtn { font-size: 16px; padding: 6px 12px; }
-      .control-btn { font-size: 20px; width: 40px; height: 40px; }
+      #gameInfo h1 { font-size: 20px; }
+      #gameInfo div { font-size: 12px; }
+      #startScreen h2, #gameOver h2 { font-size: 22px; }
+      #instructions { font-size: 12px; }
+      #startBtn, #restartBtn { font-size: 14px; padding: 6px 12px; }
+      .control-btn { font-size: 18px; width: 35px; height: 35px; }
     }
   </style>
 </head>
@@ -181,14 +211,14 @@
       <div id="pauseScreen" style="display: none;">Paused</div>
       <canvas id="gameCanvas" width="768" height="1024"></canvas>
     </div>
-    <!-- On-screen controls now live outside the game container -->
+    <!-- On-screen controls (hidden on desktop) -->
     <div id="controls">
       <button id="leftBtn" class="control-btn">←</button>
       <button id="rightBtn" class="control-btn">→</button>
     </div>
   </div>
 
-  <!-- Audio elements (supply your own audio files) -->
+  <!-- Audio elements (provide your own audio files) -->
   <audio id="bgMusic" loop>
     <source src="bg-music.mp3" type="audio/mpeg">
   </audio>
@@ -206,7 +236,6 @@
     // Updated simulation resolution (portrait orientation)
     const SIM_WIDTH = 768;
     const SIM_HEIGHT = 1024;
-    // Global variable for the container scale (based on viewport)
     let containerScale = 1;
 
     // DOM elements
@@ -223,6 +252,8 @@
     const PAUSE_SCREEN = document.getElementById("pauseScreen");
     const START_BTN = document.getElementById("startBtn");
     const RESTART_BTN = document.getElementById("restartBtn");
+    const leftBtn = document.getElementById("leftBtn");
+    const rightBtn = document.getElementById("rightBtn");
 
     // Offscreen canvas for star drawing
     const offscreenCanvas = document.createElement("canvas");
@@ -237,15 +268,14 @@
     let screenShake = 0;
     const keys = {};
 
-    // Update container dimensions and store the container scale factor.
+    // Update the scale function with extra padding to display side borders on mobile
     function updateScale() {
-      // Calculate scale to fit the entire simulation (768×1024) into the viewport.
-      containerScale = Math.min(window.innerWidth / SIM_WIDTH, window.innerHeight / SIM_HEIGHT);
+      const padding = 40; // Adjust padding as needed
+      containerScale = Math.min((window.innerWidth - padding) / SIM_WIDTH, (window.innerHeight - padding) / SIM_HEIGHT);
       gameContainer.style.width = (SIM_WIDTH * containerScale) + "px";
       gameContainer.style.height = (SIM_HEIGHT * containerScale) + "px";
     }
 
-    // Set up the canvas internal resolution based on container scale and devicePixelRatio.
     function setupCanvas() {
       const dpr = window.devicePixelRatio || 1;
       let effectiveScale = containerScale * dpr;
@@ -263,7 +293,15 @@
     updateScale();
     setupCanvas();
 
-    // Initialise the game with a fixed simulation resolution.
+    // Ensure that when the window loses focus, keys are cleared (prevents runaway input)
+    window.addEventListener('blur', () => {
+      keys.ArrowLeft = false;
+      keys.ArrowRight = false;
+      keys.KeyA = false;
+      keys.KeyD = false;
+    });
+
+    // Initialise the game
     function initGame() {
       rocket = {
         x: SIM_WIDTH / 2,
@@ -341,7 +379,6 @@
       CTX.drawImage(offscreenCanvas, 0, 0);
     }
 
-    // Draw the rocket (streamlined triangular design with cockpit).
     function drawRocket() {
       if (rocket.isBreakingDown) {
         drawBreakingRocket();
@@ -571,7 +608,7 @@
 
     function updateRocket() {
       if (rocket.isBreakingDown) return;
-      // Allow left movement via ArrowLeft or A key; right via ArrowRight or D key.
+      // Determine acceleration based on keys
       rocket.acceleration.x = (keys.ArrowLeft || keys.KeyA ? -0.8 : (keys.ArrowRight || keys.KeyD ? 0.8 : 0));
       rocket.thrustPower = (keys.ArrowLeft || keys.KeyA || keys.ArrowRight || keys.KeyD) ? 0.8 : Math.max(0, rocket.thrustPower - 0.2);
       rocket.velocity.x += rocket.acceleration.x;
@@ -812,7 +849,7 @@
       animationId = requestAnimationFrame(gameLoop);
     }
 
-    // Event handlers
+    // Event handlers for keyboard
     document.addEventListener("keydown", e => {
       keys[e.code] = true;
       if (e.code === "KeyP") {
@@ -825,16 +862,28 @@
     document.addEventListener("keyup", e => {
       keys[e.code] = false;
     });
-    const leftBtn = document.getElementById("leftBtn");
-    const rightBtn = document.getElementById("rightBtn");
+
+    // Additional event listeners for on‑screen mobile controls
     leftBtn.addEventListener("mousedown", () => keys.ArrowLeft = true);
     leftBtn.addEventListener("mouseup", () => keys.ArrowLeft = false);
     leftBtn.addEventListener("touchstart", e => { e.preventDefault(); keys.ArrowLeft = true; });
     leftBtn.addEventListener("touchend", e => { e.preventDefault(); keys.ArrowLeft = false; });
+    leftBtn.addEventListener("touchcancel", e => { e.preventDefault(); keys.ArrowLeft = false; });
+
     rightBtn.addEventListener("mousedown", () => keys.ArrowRight = true);
     rightBtn.addEventListener("mouseup", () => keys.ArrowRight = false);
     rightBtn.addEventListener("touchstart", e => { e.preventDefault(); keys.ArrowRight = true; });
     rightBtn.addEventListener("touchend", e => { e.preventDefault(); keys.ArrowRight = false; });
+    rightBtn.addEventListener("touchcancel", e => { e.preventDefault(); keys.ArrowRight = false; });
+
+    // In case of pointer cancellation, clear keys
+    window.addEventListener("pointerup", () => {
+      keys.ArrowLeft = false;
+      keys.ArrowRight = false;
+      keys.KeyA = false;
+      keys.KeyD = false;
+    });
+
     START_BTN.addEventListener("click", () => {
       START_SCREEN.style.display = "none";
       startGame();
@@ -847,6 +896,7 @@
         spawnPowerUp();
       }
     }, 500);
+
     function startGame() {
       if (animationId) {
         cancelAnimationFrame(animationId);
