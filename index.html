@@ -1,42 +1,853 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Neon Rocket Game</title>
-<style>
-body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;height:100vh;background-color:#0a0a0a;font-family:'Segoe UI',Arial,sans-serif;overflow:hidden;color:#fff}
-#gameCanvas{border-radius:20px;box-shadow:0 0 60px rgba(0,255,255,0.3);border:2px solid rgba(0,255,255,0.5)}
-#gameInfo{position:absolute;top:20px;left:20px;padding:10px;border-radius:10px}
-#gameTitle{margin:0;font-size:32px;font-weight:300;color:#0ff;text-shadow:0 0 10px rgba(0,255,255,.7);letter-spacing:3px}
-#score{margin-top:10px;font-size:24px;color:#0ff;text-shadow:0 0 5px rgba(0,255,255,0.7)}
-#gameOver{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.8);padding:40px;border-radius:20px;text-align:center;display:none;backdrop-filter:blur(10px)}
-#gameOverText{color:#f33;font-size:48px;text-shadow:0 0 20px rgba(255,51,51,.7);margin-bottom:20px}
-#finalScore{font-size:24px;margin-bottom:20px}
-#restartInfo{color:#0ff;font-size:18px}
-#controls{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:20px}
-.control-btn{background:rgba(0,255,255,0.2);border:none;color:#0ff;font-size:24px;width:60px;height:60px;border-radius:50%;cursor:pointer;transition:all 0.3s;user-select:none;-webkit-user-select:none}
-.control-btn:hover{background:rgba(0,255,255,0.4);transform:scale(1.1)}
-.control-btn:active{transform:scale(0.9)}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Neon Voyage</title>
+  <style>
+    /* Overall layout and background */
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #0a0a0a;
+      font-family: 'Segoe UI', sans-serif;
+      overflow: hidden;
+      color: #e0e0e0;
+    }
+    /* Canvas styling */
+    #gameCanvas {
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+      border: 1px solid rgba(0, 255, 255, 0.3);
+    }
+    /* UI information panel */
+    #gameInfo {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 10px 15px;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 5px;
+    }
+    #gameTitle {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 300;
+      color: #0ff;
+    }
+    #score, #highScore, #multiplier, #boostMeter {
+      margin-top: 5px;
+      font-size: 18px;
+      color: #0ff;
+    }
+    /* Start, Game Over and Pause screens */
+    #startScreen, #gameOver, #pauseScreen {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.85);
+      padding: 30px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    #startScreen {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    #startScreen h2 {
+      color: #0ff;
+      font-size: 30px;
+      margin-bottom: 15px;
+    }
+    #instructions {
+      font-size: 16px;
+      color: #ccc;
+      margin-bottom: 15px;
+      line-height: 1.5;
+    }
+    #startBtn, #restartBtn {
+      background: #0ff;
+      color: #000;
+      font-size: 18px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    #startBtn:hover, #restartBtn:hover {
+      background: #00dddd;
+    }
+    #gameOver {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+    }
+    #gameOverText {
+      color: #f33;
+      font-size: 36px;
+      margin-bottom: 15px;
+    }
+    #finalScore {
+      font-size: 20px;
+      margin-bottom: 15px;
+    }
+    #restartInfo {
+      color: #0ff;
+      font-size: 16px;
+      margin-bottom: 15px;
+    }
+    #pauseScreen {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 36px;
+      color: #0ff;
+      display: none;
+    }
+    /* On‑screen controls */
+    #controls {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 20px;
+    }
+    .control-btn {
+      background: rgba(0, 255, 255, 0.2);
+      border: none;
+      color: #0ff;
+      font-size: 24px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s;
+      user-select: none;
+    }
+    .control-btn:hover {
+      background: rgba(0, 255, 255, 0.4);
+      transform: scale(1.1);
+    }
+    .control-btn:active {
+      transform: scale(0.95);
+    }
+  </style>
 </head>
 <body>
 <div id="gameInfo">
-<h1 id="gameTitle">Neon Voyage</h1>
-<div id="score">Score: 0</div>
+  <h1 id="gameTitle">Neon Voyage</h1>
+  <div id="score">Score: 0</div>
+  <div id="highScore">High Score: 0</div>
+  <div id="multiplier">Multiplier: 1x</div>
+  <div id="boostMeter">Boost: 0%</div>
 </div>
+
+<div id="startScreen">
+  <h2>Neon Voyage</h2>
+  <div id="instructions">
+    Use Left and Right Arrows or the on‑screen buttons to move the rocket.<br>
+    Avoid neon obstacles and collect power‑ups!<br>
+    Press 'P' to Pause/Unpause.
+  </div>
+  <button id="startBtn">Start Game</button>
+</div>
+
 <div id="gameOver">
-<div id="gameOverText">Game Over</div>
-<div id="finalScore"></div>
-<div id="restartInfo">Press any key to restart</div>
+  <div id="gameOverText">Game Over</div>
+  <div id="finalScore"></div>
+  <div id="restartInfo">Click "Play Again" or press any key to restart.</div>
+  <button id="restartBtn">Play Again</button>
 </div>
+
+<div id="pauseScreen">Paused</div>
+
 <canvas id="gameCanvas" width="800" height="600"></canvas>
+
 <div id="controls">
-<button id="leftBtn" class="control-btn">←</button>
-<button id="rightBtn" class="control-btn">→</button>
+  <button id="leftBtn" class="control-btn">←</button>
+  <button id="rightBtn" class="control-btn">→</button>
 </div>
+
+<!-- Audio elements (supply your own audio files) -->
+<audio id="bgMusic" loop>
+  <source src="bg-music.mp3" type="audio/mpeg">
+</audio>
+<audio id="explosionSound">
+  <source src="explosion.mp3" type="audio/mpeg">
+</audio>
+<audio id="powerUpSound">
+  <source src="powerup.mp3" type="audio/mpeg">
+</audio>
+<audio id="boostSound">
+  <source src="boost.mp3" type="audio/mpeg">
+</audio>
+
 <script>
-const canvas=document.getElementById("gameCanvas"),ctx=canvas.getContext("2d"),scoreElement=document.getElementById("score"),gameOverElement=document.getElementById("gameOver"),finalScoreElement=document.getElementById("finalScore"),CANVAS_WIDTH=canvas.width,CANVAS_HEIGHT=canvas.height,ROCKET_WIDTH=30,ROCKET_HEIGHT=60,STAR_COUNT=150,INITIAL_SCROLL_SPEED=4,OBSTACLE_SPAWN_CHANCE=0.03;let rocket,stars,obstacles,score,time,gameActive,canRestart,animationId,scrollSpeed;const keys={},offscreenCanvas=document.createElement("canvas"),offscreenCtx=offscreenCanvas.getContext("2d");offscreenCanvas.width=CANVAS_WIDTH;offscreenCanvas.height=CANVAS_HEIGHT;function initGame(){rocket={x:CANVAS_WIDTH/2,y:CANVAS_HEIGHT-80,width:ROCKET_WIDTH,height:ROCKET_HEIGHT,color:"#00ffff",velocity:{x:0,y:0},acceleration:{x:0,y:0},maxSpeed:15,rotation:0,rotationSpeed:0.2,thrustPower:0,isBreakingDown:false,breakdownParts:[]},stars=Array.from({length:STAR_COUNT},()=>({x:Math.random()*CANVAS_WIDTH,y:Math.random()*CANVAS_HEIGHT,radius:1.5*Math.random(),color:`rgba(255, 255, 255, ${0.8*Math.random()+0.2})`})),obstacles=[],score=0,time=0,gameActive=true,canRestart=false,scrollSpeed=INITIAL_SCROLL_SPEED,scoreElement.textContent="Score: 0",gameOverElement.style.display="none"}function drawRocket(){if(rocket.isBreakingDown)return void drawBreakingRocket();ctx.save(),ctx.translate(rocket.x,rocket.y),ctx.rotate(rocket.rotation);const e=ctx.createLinearGradient(0,-rocket.height/2,0,rocket.height/2);e.addColorStop(0,"#00ffff"),e.addColorStop(1,"#0066ff"),ctx.fillStyle=e,ctx.beginPath(),ctx.moveTo(0,-rocket.height/2),ctx.lineTo(rocket.width/2,rocket.height/4),ctx.lineTo(rocket.width/4,rocket.height/2),ctx.lineTo(-rocket.width/4,rocket.height/2),ctx.lineTo(-rocket.width/2,rocket.height/4),ctx.closePath(),ctx.fill();const t=ctx.createRadialGradient(0,-rocket.height/4,0,0,-rocket.height/4,rocket.width/2);t.addColorStop(0,"rgba(255, 255, 255, 0.9)"),t.addColorStop(1,"rgba(255, 255, 255, 0.1)"),ctx.fillStyle=t,ctx.beginPath(),ctx.ellipse(0,-rocket.height/4,rocket.width/3,rocket.height/8,0,0,2*Math.PI),ctx.fill(),ctx.fillStyle="#0066ff",ctx.beginPath(),ctx.moveTo(-rocket.width/2,rocket.height/4),ctx.lineTo(-rocket.width*0.7,rocket.height/2),ctx.lineTo(-rocket.width/2,rocket.height/2),ctx.closePath(),ctx.fill(),ctx.beginPath(),ctx.moveTo(rocket.width/2,rocket.height/4),ctx.lineTo(rocket.width*0.7,rocket.height/2),ctx.lineTo(rocket.width/2,rocket.height/2),ctx.closePath(),ctx.fill();const i=ctx.createRadialGradient(0,rocket.height/2,0,0,rocket.height/2,rocket.width/2);i.addColorStop(0,`rgba(255, 100, 0, ${0.5+0.5*rocket.thrustPower})`),i.addColorStop(1,"rgba(255, 100, 0, 0)"),ctx.fillStyle=i,ctx.beginPath(),ctx.arc(0,rocket.height/2,rocket.width/2,0,Math.PI,true),ctx.fill(),ctx.restore()}function drawBreakingRocket(){rocket.breakdownParts.forEach(e=>{ctx.save(),ctx.translate(e.x,e.y),ctx.rotate(e.rotation),ctx.fillStyle=e.color,ctx.beginPath(),ctx.moveTo(0,-e.height/2),ctx.lineTo(e.width/2,e.height/2),ctx.lineTo(-e.width/2,e.height/2),ctx.closePath(),ctx.fill(),ctx.restore(),e.x+=e.velocity.x,e.y+=e.velocity.y,e.rotation+=e.rotationSpeed,e.velocity.y+=0.1})}function updateRocket(){if(rocket.isBreakingDown)return void(rocket.breakdownParts.every(e=>e.y>CANVAS_HEIGHT)&&endGame());rocket.acceleration.x=keys.ArrowLeft?-0.8:keys.ArrowRight?0.8:0,rocket.thrustPower=keys.ArrowLeft||keys.ArrowRight?0.8:Math.max(0,rocket.thrustPower-0.2),rocket.velocity.x+=rocket.acceleration.x,rocket.velocity.x*=0.94,rocket.velocity.x=Math.max(Math.min(rocket.velocity.x,rocket.maxSpeed),-rocket.maxSpeed),rocket.x+=rocket.velocity.x,rocket.x=Math.max(rocket.width/2,Math.min(CANVAS_WIDTH-rocket.width/2,rocket.x));const e=0.1*rocket.velocity.x;rocket.rotation+=0.2*(e-rocket.rotation),rocket.y=CANVAS_HEIGHT-80+6*Math.sin(2.5*time)}function initializeBreakdown(){rocket.isBreakingDown=true,rocket.breakdownParts=[{x:rocket.x,y:rocket.y-rocket.height/3,width:rocket.width/2,height:rocket.height/3,color:"#00ffff",velocity:{x:6*(Math.random()-0.5),y:-7},rotation:0,rotationSpeed:0.3*(Math.random()-0.5)},{x:rocket.x,y:rocket.y,width:rocket.width,height:rocket.height/3,color:"#0066ff",velocity:{x:6*(Math.random()-0.5),y:-5},rotation:0,rotationSpeed:0.3*(Math.random()-0.5)},{x:rocket.x-rocket.width/2,y:rocket.y+rocket.height/3,width:rocket.width/2,height:rocket.height/3,color:"#0066ff",velocity:{x:-4,y:-3},rotation:0,rotationSpeed:0.3*(Math.random()-0.5)},{x:rocket.x+rocket.width/2,y:rocket.y+rocket.height/3,width:rocket.width/2,height:rocket.height/3,color:"#0066ff",velocity:{x:4,y:-3},rotation:0,rotationSpeed:0.3*(Math.random()-0.5)}]}function drawStars(){offscreenCtx.clearRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT),stars.forEach(e=>{offscreenCtx.fillStyle=e.color,offscreenCtx.beginPath(),offscreenCtx.arc(e.x,e.y,e.radius,0,2*Math.PI),offscreenCtx.fill(),e.y+=scrollSpeed,e.y>CANVAS_HEIGHT&&(e.y=0,e.x=Math.random()*CANVAS_WIDTH)}),ctx.drawImage(offscreenCanvas,0,0)}function drawObstacle(e,t,i,o){ctx.save(),ctx.translate(e,t),ctx.rotate(o.rotation);const r=ctx.createLinearGradient(-i,0,i,0);r.addColorStop(0,o.color),r.addColorStop(0.5,"white"),r.addColorStop(1,o.color),ctx.strokeStyle=r,ctx.lineWidth=i*0.1,ctx.shadowColor=o.color,ctx.shadowBlur=20;const a=6+Math.floor(3*Math.random());ctx.beginPath();for(let e=0;e<a;e++){const t=2*Math.PI*e/a,r=i*(0.95+0.05*Math.sin(o.pulseOffset+5*time));ctx.lineTo(r*Math.cos(t),r*Math.sin(t))}ctx.closePath(),ctx.stroke();const n=ctx.createRadialGradient(0,0,0,0,0,i);n.addColorStop(0,o.color),n.addColorStop(0.7,`${o.color}44`),n.addColorStop(1,"transparent"),ctx.fillStyle=n,ctx.fill(),ctx.restore()}function drawObstacles(){obstacles.forEach(e=>{drawObstacle(e.x,e.y,e.radius,e),e.y+=scrollSpeed,e.rotation+=e.rotationSpeed,e.pulseOffset+=e.pulseSpeed}),Math.random()<OBSTACLE_SPAWN_CHANCE&&obstacles.push({x:Math.random()*CANVAS_WIDTH,y:-50,radius:20+30*Math.random(),color:["#ff3333","#ff33ff","#33ff33","#3333ff","#ffff33"][Math.floor(5*Math.random())],rotation:2*Math.random()*Math.PI,rotationSpeed:0.02*(Math.random()-0.5),pulseOffset:2*Math.PI*Math.random(),pulseSpeed:0.02+0.03*Math.random()});const e=obstacles.length;obstacles=obstacles.filter(e=>e.y-e.radius<=CANVAS_HEIGHT);const t=e-obstacles.length;score+=t,scoreElement.textContent=`Score: ${score}`,scrollSpeed=INITIAL_SCROLL_SPEED+score*0.1}const backgroundGradient=ctx.createLinearGradient(0,0,0,CANVAS_HEIGHT);backgroundGradient.addColorStop(0,"#0a0a0a"),backgroundGradient.addColorStop(1,"#1a1a2e");function drawBackground(){ctx.fillStyle=backgroundGradient,ctx.fillRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT)}function checkCollision(){return rocket.isBreakingDown||obstacles.some(e=>{const t=rocket.x-e.x,i=rocket.y-e.y;return Math.sqrt(t*t+i*i)<rocket.width/2+e.radius&&(initializeBreakdown(),true)})}function endGame(){gameActive=false,canRestart=true,gameOverElement.style.display="block",finalScoreElement.textContent=`Final Score: ${score}`}function gameLoop(){if(gameActive){time+=0.016,drawBackground(),drawStars(),drawObstacles(),updateRocket(),drawRocket(),checkCollision(),animationId=requestAnimationFrame(gameLoop)}else canRestart&&(animationId=requestAnimationFrame(gameLoop))}function startGame(){animationId&&(cancelAnimationFrame(animationId),animationId=null),initGame(),gameLoop()}document.addEventListener("keydown",e=>{keys[e.code]=true,canRestart&&!gameActive&&startGame()}),document.addEventListener("keyup",e=>keys[e.code]=false),leftBtn.addEventListener("mousedown",()=>keys.ArrowLeft=true),leftBtn.addEventListener("mouseup",()=>keys.ArrowLeft=false),leftBtn.addEventListener("touchstart",e=>{e.preventDefault(),keys.ArrowLeft=true}),leftBtn.addEventListener("touchend",e=>{e.preventDefault(),keys.ArrowLeft=false}),rightBtn.addEventListener("mousedown",()=>keys.ArrowRight=true),rightBtn.addEventListener("mouseup",()=>keys.ArrowRight=false),rightBtn.addEventListener("touchstart",e=>{e.preventDefault(),keys.ArrowRight=true}),rightBtn.addEventListener("touchend",e=>{e.preventDefault(),keys.ArrowRight=false}),startGame();
+// ----------------------- CONFIGURATION CONSTANTS -----------------------
+// Reduced rocket dimensions for a smaller, more nimble craft.
+const ROCKET_WIDTH = 20;
+const ROCKET_HEIGHT = 40;
+const ROCKET_MAX_SPEED = 15;
+const ROCKET_ACCEL = 0.8;
+
+const STAR_COUNT = 150;
+const BASE_OBSTACLE_SPAWN_CHANCE = 0.03;
+const INITIAL_SCROLL_SPEED = 4;
+const POWERUP_SPAWN_CHANCE = 0.005;
+
+const CANVAS = document.getElementById("gameCanvas");
+const CTX = CANVAS.getContext("2d");
+const SCORE_ELEMENT = document.getElementById("score");
+const HIGH_SCORE_ELEMENT = document.getElementById("highScore");
+const MULTIPLIER_ELEMENT = document.getElementById("multiplier");
+const BOOST_METER_ELEMENT = document.getElementById("boostMeter");
+const GAME_OVER_ELEMENT = document.getElementById("gameOver");
+const FINAL_SCORE_ELEMENT = document.getElementById("finalScore");
+const START_SCREEN = document.getElementById("startScreen");
+const PAUSE_SCREEN = document.getElementById("pauseScreen");
+const START_BTN = document.getElementById("startBtn");
+const RESTART_BTN = document.getElementById("restartBtn");
+
+const CANVAS_WIDTH = CANVAS.width;
+const CANVAS_HEIGHT = CANVAS.height;
+
+const bgMusic = document.getElementById("bgMusic");
+const explosionSound = document.getElementById("explosionSound");
+const powerUpSound = document.getElementById("powerUpSound");
+const boostSound = document.getElementById("boostSound");
+
+let rocket, stars, obstacles, powerUps, particles, explosionParticles;
+let score, time, gameActive, canRestart, animationId, scrollSpeed, paused, highScore;
+let scoreMultiplier = 1;
+let shootingStars = [];
+let screenShake = 0;
+
+const keys = {};
+
+const offscreenCanvas = document.createElement("canvas");
+const offscreenCtx = offscreenCanvas.getContext("2d");
+offscreenCanvas.width = CANVAS_WIDTH;
+offscreenCanvas.height = CANVAS_HEIGHT;
+
+const backgroundGradient = CTX.createLinearGradient(0, 0, 0, CANVAS_HEIGHT);
+backgroundGradient.addColorStop(0, "#0a0a0a");
+backgroundGradient.addColorStop(1, "#1a1a2e");
+
+// ----------------------- INITIALISATION -----------------------
+function initGame() {
+  rocket = {
+    x: CANVAS_WIDTH / 2,
+    y: CANVAS_HEIGHT - 80,
+    width: ROCKET_WIDTH,
+    height: ROCKET_HEIGHT,
+    velocity: {x: 0, y: 0},
+    acceleration: {x: 0, y: 0},
+    maxSpeed: ROCKET_MAX_SPEED,
+    rotation: 0,
+    thrustPower: 0,
+    isBreakingDown: false,
+    breakdownParts: [],
+    shieldActive: false,
+    shieldTimer: 0,
+    boostActive: false,
+    boostTimer: 0
+  };
+
+  stars = Array.from({length: STAR_COUNT}, () => ({
+    x: Math.random() * CANVAS_WIDTH,
+    y: Math.random() * CANVAS_HEIGHT,
+    radius: 1.5 * Math.random(),
+    color: `rgba(255, 255, 255, ${0.8 * Math.random() + 0.2})`
+  }));
+
+  obstacles = [];
+  powerUps = [];
+  particles = [];
+  explosionParticles = [];
+  score = 0;
+  time = 0;
+  gameActive = true;
+  paused = false;
+  canRestart = false;
+  scrollSpeed = INITIAL_SCROLL_SPEED;
+  rocket.shieldActive = false;
+  rocket.shieldTimer = 0;
+  rocket.boostActive = false;
+  rocket.boostTimer = 0;
+  scoreMultiplier = 1;
+  shootingStars = [];
+  screenShake = 0;
+
+  SCORE_ELEMENT.textContent = "Score: 0";
+  HIGH_SCORE_ELEMENT.textContent = "High Score: " + (highScore || 0);
+  MULTIPLIER_ELEMENT.textContent = "Multiplier: 1x";
+  BOOST_METER_ELEMENT.textContent = "Boost: 0%";
+  GAME_OVER_ELEMENT.style.display = "none";
+  PAUSE_SCREEN.style.display = "none";
+}
+
+// ----------------------- DRAW FUNCTIONS -----------------------
+function drawBackground() {
+  CTX.fillStyle = backgroundGradient;
+  CTX.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+}
+
+function drawStars() {
+  offscreenCtx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  stars.forEach(star => {
+    offscreenCtx.fillStyle = star.color;
+    offscreenCtx.beginPath();
+    offscreenCtx.arc(star.x, star.y, star.radius, 0, 2 * Math.PI);
+    offscreenCtx.fill();
+    star.y += scrollSpeed * (star.radius / 2 + 0.5);
+    if (star.y > CANVAS_HEIGHT) {
+      star.y = 0;
+      star.x = Math.random() * CANVAS_WIDTH;
+    }
+  });
+  CTX.drawImage(offscreenCanvas, 0, 0);
+}
+
+// Updated rocket design: a streamlined, triangular shape with a subtle gradient and cockpit window.
+function drawRocket() {
+  if (rocket.isBreakingDown) {
+    drawBreakingRocket();
+    return;
+  }
+  CTX.save();
+  CTX.translate(rocket.x, rocket.y);
+  CTX.rotate(rocket.rotation);
+
+  // Rocket body: a sleek triangle for a nimble, streamlined look
+  CTX.beginPath();
+  CTX.moveTo(-rocket.width / 2, rocket.height / 2);
+  CTX.lineTo(0, -rocket.height / 2);
+  CTX.lineTo(rocket.width / 2, rocket.height / 2);
+  CTX.closePath();
+  let bodyGrad = CTX.createLinearGradient(0, -rocket.height / 2, 0, rocket.height / 2);
+  bodyGrad.addColorStop(0, "#00ffff");
+  bodyGrad.addColorStop(1, "#0066ff");
+  CTX.fillStyle = bodyGrad;
+  CTX.fill();
+
+  // Cockpit: small circular window near the tip
+  CTX.beginPath();
+  CTX.arc(0, -rocket.height / 2 + rocket.height / 5, rocket.width / 5, 0, Math.PI * 2);
+  let cockpitGrad = CTX.createRadialGradient(0, -rocket.height / 2 + rocket.height / 5, rocket.width / 10, 0, -rocket.height / 2 + rocket.height / 5, rocket.width / 5);
+  cockpitGrad.addColorStop(0, "rgba(255,255,255,0.9)");
+  cockpitGrad.addColorStop(1, "rgba(255,255,255,0.1)");
+  CTX.fillStyle = cockpitGrad;
+  CTX.fill();
+
+  // Optional thrust flame for movement
+  if (keys.ArrowLeft || keys.ArrowRight) {
+    CTX.beginPath();
+    CTX.moveTo(-rocket.width / 4, rocket.height / 2);
+    CTX.lineTo(0, rocket.height / 2 + rocket.height / 3 + Math.random() * 5);
+    CTX.lineTo(rocket.width / 4, rocket.height / 2);
+    CTX.closePath();
+    CTX.fillStyle = "orange";
+    CTX.fill();
+  }
+  CTX.restore();
+}
+
+function drawObstacle(x, y, radius, obs) {
+  CTX.save();
+  CTX.translate(x, y);
+  CTX.rotate(obs.rotation);
+  let strokeGrad = CTX.createLinearGradient(-radius, 0, radius, 0);
+  strokeGrad.addColorStop(0, obs.colour);
+  strokeGrad.addColorStop(0.5, "white");
+  strokeGrad.addColorStop(1, obs.colour);
+  CTX.strokeStyle = strokeGrad;
+  CTX.lineWidth = radius * 0.1;
+  CTX.shadowColor = obs.colour;
+  CTX.shadowBlur = 20;
+  
+  CTX.beginPath();
+  for (let i = 0; i < obs.sides; i++) {
+    let angle = (2 * Math.PI * i) / obs.sides;
+    let offset = obs.vertexOffsets[i];
+    let dynamicFactor = 0.95 + 0.05 * Math.sin(obs.pulseOffset + 5 * time);
+    let r = radius * offset * dynamicFactor;
+    let vx = r * Math.cos(angle);
+    let vy = r * Math.sin(angle);
+    if (i === 0) {
+      CTX.moveTo(vx, vy);
+    } else {
+      CTX.lineTo(vx, vy);
+    }
+  }
+  CTX.closePath();
+  CTX.stroke();
+  
+  let fillGrad = CTX.createRadialGradient(0, 0, 0, 0, 0, radius);
+  fillGrad.addColorStop(0, obs.colour);
+  fillGrad.addColorStop(0.7, obs.colour + "44");
+  fillGrad.addColorStop(1, "transparent");
+  CTX.fillStyle = fillGrad;
+  CTX.fill();
+  CTX.restore();
+}
+
+function drawPowerUps() {
+  powerUps.forEach(pu => {
+    CTX.save();
+    CTX.translate(pu.x, pu.y);
+    pu.pulseOffset += pu.pulseSpeed;
+    const pulse = 0.2 * Math.sin(pu.pulseOffset) + 0.8;
+    const grad = CTX.createRadialGradient(0, 0, pu.radius * 0.3, 0, 0, pu.radius);
+    if (pu.type === "shield") {
+      grad.addColorStop(0, `rgba(51,255,51,${pulse})`);
+    } else {
+      grad.addColorStop(0, `rgba(255,215,0,${pulse})`);
+    }
+    grad.addColorStop(1, "transparent");
+    CTX.fillStyle = grad;
+    CTX.beginPath();
+    CTX.arc(0, 0, pu.radius, 0, 2 * Math.PI);
+    CTX.fill();
+    CTX.restore();
+  });
+  powerUps = powerUps.filter(pu => pu.y - pu.radius <= CANVAS_HEIGHT);
+}
+
+function drawParticles() {
+  particles.forEach(p => {
+    CTX.save();
+    CTX.globalAlpha = p.opacity;
+    CTX.fillStyle = p.colour;
+    CTX.beginPath();
+    CTX.arc(p.x, p.y, p.radius, 0, 2 * Math.PI);
+    CTX.fill();
+    CTX.restore();
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life -= 0.016;
+    p.opacity = p.life;
+  });
+  particles = particles.filter(p => p.life > 0);
+}
+
+function drawExplosionParticles() {
+  explosionParticles.forEach(p => {
+    CTX.save();
+    CTX.globalAlpha = p.opacity;
+    CTX.fillStyle = p.colour;
+    CTX.beginPath();
+    CTX.arc(p.x, p.y, p.radius, 0, 2 * Math.PI);
+    CTX.fill();
+    CTX.restore();
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life -= 0.016;
+    p.opacity = p.life;
+  });
+  explosionParticles = explosionParticles.filter(p => p.life > 0);
+}
+
+function drawBreakingRocket() {
+  rocket.breakdownParts.forEach(part => {
+    CTX.save();
+    CTX.translate(part.x, part.y);
+    CTX.rotate(part.rotation);
+    CTX.fillStyle = part.colour;
+    CTX.beginPath();
+    CTX.moveTo(0, -part.height / 2);
+    CTX.lineTo(part.width / 2, part.height / 2);
+    CTX.lineTo(-part.width / 2, part.height / 2);
+    CTX.closePath();
+    CTX.fill();
+    CTX.restore();
+    part.x += part.vx;
+    part.y += part.vy;
+    part.rotation += part.rotationSpeed;
+    part.vy += 0.1;
+  });
+  drawExplosionParticles();
+  if (rocket.breakdownParts.every(p => p.y > CANVAS_HEIGHT) && explosionParticles.length === 0) {
+    endGame();
+  }
+}
+
+function drawShootingStars() {
+  if (Math.random() < 0.005) {
+    shootingStars.push({
+      x: Math.random() * CANVAS_WIDTH,
+      y: 0,
+      length: 50 + Math.random() * 50,
+      vx: 5 + Math.random() * 3,
+      vy: 5 + Math.random() * 3,
+      opacity: 1
+    });
+  }
+  shootingStars.forEach((star) => {
+    CTX.save();
+    CTX.strokeStyle = "rgba(255,255,255," + star.opacity + ")";
+    CTX.lineWidth = 2;
+    CTX.beginPath();
+    CTX.moveTo(star.x, star.y);
+    CTX.lineTo(star.x - star.length, star.y - star.length);
+    CTX.stroke();
+    CTX.restore();
+    star.x += star.vx;
+    star.y += star.vy;
+    star.opacity -= 0.02;
+  });
+  shootingStars = shootingStars.filter(star => star.opacity > 0 && star.x < CANVAS_WIDTH && star.y < CANVAS_HEIGHT);
+}
+
+// ----------------------- PARTICLE & POWER‑UP FUNCTIONS -----------------------
+function spawnRocketParticle() {
+  const exhaustOffsetX = -(rocket.height / 2) * Math.sin(rocket.rotation);
+  const exhaustOffsetY = (rocket.height / 2) * Math.cos(rocket.rotation);
+  const particleX = rocket.x + exhaustOffsetX;
+  const particleY = rocket.y + exhaustOffsetY;
+  const speed = 2 + Math.random() * 2;
+  const baseVx = -Math.sin(rocket.rotation) * speed;
+  const baseVy = Math.cos(rocket.rotation) * speed;
+  particles.push({
+    x: particleX,
+    y: particleY,
+    vx: baseVx + (Math.random() - 0.5),
+    vy: baseVy + (Math.random() - 0.5),
+    radius: Math.random() * 2 + 1,
+    life: 1,
+    opacity: 1,
+    colour: "rgba(255,150,0,1)"
+  });
+}
+
+function spawnPowerUp() {
+  powerUps.push({
+    x: Math.random() * (CANVAS_WIDTH - 30) + 15,
+    y: -30,
+    radius: 15,
+    pulseOffset: 2 * Math.PI * Math.random(),
+    pulseSpeed: 0.1 + Math.random() * 0.1,
+    type: Math.random() < 0.7 ? "shield" : "boost"
+  });
+}
+
+function spawnExplosionParticles() {
+  for (let i = 0; i < 30; i++) {
+    explosionParticles.push({
+      x: rocket.x,
+      y: rocket.y,
+      vx: (Math.random() - 0.5) * 6,
+      vy: (Math.random() - 0.5) * 6,
+      radius: Math.random() * 3 + 2,
+      life: 1,
+      opacity: 1,
+      colour: "#ff9933"
+    });
+  }
+}
+
+// ----------------------- UPDATES & LOGIC -----------------------
+function updateRocket() {
+  if (rocket.isBreakingDown) return;
+  rocket.acceleration.x = keys.ArrowLeft ? -ROCKET_ACCEL : (keys.ArrowRight ? ROCKET_ACCEL : 0);
+  rocket.thrustPower = (keys.ArrowLeft || keys.ArrowRight) ? 0.8 : Math.max(0, rocket.thrustPower - 0.2);
+  rocket.velocity.x += rocket.acceleration.x;
+  rocket.velocity.x *= 0.94;
+  if (Math.abs(rocket.velocity.x) < 0.1) {
+    rocket.velocity.x = 0;
+  }
+  const currentMaxSpeed = rocket.boostActive ? rocket.maxSpeed * 1.5 : rocket.maxSpeed;
+  rocket.velocity.x = Math.max(Math.min(rocket.velocity.x, currentMaxSpeed), -currentMaxSpeed);
+  rocket.x += rocket.velocity.x;
+  rocket.x = Math.max(rocket.width / 2, Math.min(CANVAS_WIDTH - rocket.width / 2, rocket.x));
+  rocket.y = CANVAS_HEIGHT - 80 + 6 * Math.sin(2.5 * time);
+  const targetRotation = 0.1 * rocket.velocity.x;
+  rocket.rotation += 0.2 * (targetRotation - rocket.rotation);
+  
+  if (rocket.boostActive) {
+    rocket.boostTimer -= 0.016;
+    if (rocket.boostTimer <= 0) {
+      rocket.boostActive = false;
+      rocket.boostTimer = 0;
+    }
+  }
+  if (keys.ArrowLeft || keys.ArrowRight) {
+    spawnRocketParticle();
+  }
+  scoreMultiplier = 1 + time / 60;
+}
+
+function updateCollisions() {
+  obstacles.forEach((obs, index) => {
+    const dx = rocket.x - obs.x;
+    const dy = rocket.y - obs.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    if (distance < rocket.width / 2 + obs.radius) {
+      if (!rocket.shieldActive && !rocket.isBreakingDown) {
+        initializeBreakdown();
+      } else if (rocket.shieldActive) {
+        obstacles.splice(index, 1);
+      }
+    }
+  });
+  powerUps.forEach((pu, index) => {
+    const dx = rocket.x - pu.x;
+    const dy = rocket.y - pu.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    if (distance < rocket.width / 2 + pu.radius) {
+      if (pu.type === "shield") {
+        rocket.shieldActive = true;
+        rocket.shieldTimer = 5;
+        powerUpSound.currentTime = 0;
+        powerUpSound.play();
+      } else if (pu.type === "boost") {
+        rocket.boostActive = true;
+        rocket.boostTimer = 3;
+        boostSound.currentTime = 0;
+        boostSound.play();
+      }
+      powerUps.splice(index, 1);
+    }
+  });
+}
+
+// Updated asteroid collisions using standard overlap correction and velocity exchange
+function updateAsteroidCollisions() {
+  for (let i = 0; i < obstacles.length; i++) {
+    for (let j = i + 1; j < obstacles.length; j++) {
+      const dx = obstacles[j].x - obstacles[i].x;
+      const dy = obstacles[j].y - obstacles[i].y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const minDist = obstacles[i].radius + obstacles[j].radius;
+      if (dist < minDist && dist > 0) {
+        const nx = dx / dist;
+        const ny = dy / dist;
+        const penetration = minDist - dist;
+        obstacles[i].x -= (penetration * nx) / 2;
+        obstacles[i].y -= (penetration * ny) / 2;
+        obstacles[j].x += (penetration * nx) / 2;
+        obstacles[j].y += (penetration * ny) / 2;
+        const vxDiff = obstacles[i].vx - obstacles[j].vx;
+        const vyDiff = obstacles[i].vy - obstacles[j].vy;
+        const dotProduct = vxDiff * nx + vyDiff * ny;
+        if (dotProduct < 0) {
+          obstacles[i].vx -= dotProduct * nx;
+          obstacles[i].vy -= dotProduct * ny;
+          obstacles[j].vx += dotProduct * nx;
+          obstacles[j].vy += dotProduct * ny;
+        }
+      }
+    }
+  }
+}
+
+// Update obstacles, spawn new ones and remove off‑screen asteroids
+function updateObstacles() {
+  obstacles.forEach(obs => {
+    obs.y += obs.vy;
+    obs.x += obs.vx;
+    obs.rotation += obs.rotationSpeed;
+    obs.pulseOffset += obs.pulseSpeed;
+    obs.vy += (scrollSpeed - obs.vy) * 0.05;
+  });
+  updateAsteroidCollisions();
+  
+  // Spawn new asteroid with difficulty scaling
+  let spawnChance = BASE_OBSTACLE_SPAWN_CHANCE + (score * 0.0005);
+  if (Math.random() < spawnChance) {
+    let sides = 6 + Math.floor(Math.random() * 3);
+    let vertexOffsets = [];
+    for (let i = 0; i < sides; i++) {
+      vertexOffsets.push(0.9 + Math.random() * 0.2);
+    }
+    obstacles.push({
+      x: Math.random() * CANVAS_WIDTH,
+      y: -50,
+      radius: 20 + 30 * Math.random(),
+      colour: ["#ff3333", "#ff33ff", "#33ff33", "#3333ff", "#ffff33"][Math.floor(5 * Math.random())],
+      rotation: 2 * Math.random() * Math.PI,
+      rotationSpeed: 0.02 * (Math.random() - 0.5),
+      pulseOffset: 2 * Math.PI * Math.random(),
+      pulseSpeed: 0.02 + 0.03 * Math.random(),
+      sides: sides,
+      vertexOffsets: vertexOffsets,
+      vx: (Math.random() - 0.5) * 2,
+      vy: scrollSpeed
+    });
+  }
+  
+  const beforeCount = obstacles.length;
+  obstacles = obstacles.filter(obs => obs.y - obs.radius <= CANVAS_HEIGHT);
+  const removed = beforeCount - obstacles.length;
+  score += Math.floor(removed * scoreMultiplier);
+  SCORE_ELEMENT.textContent = `Score: ${score}`;
+  scrollSpeed = INITIAL_SCROLL_SPEED + score * 0.05;
+}
+
+function initializeBreakdown() {
+  rocket.isBreakingDown = true;
+  rocket.breakdownParts = [
+    {
+      x: rocket.x,
+      y: rocket.y - rocket.height / 3,
+      width: rocket.width / 2,
+      height: rocket.height / 3,
+      colour: "#00ffff",
+      vx: 6 * (Math.random() - 0.5),
+      vy: -7,
+      rotation: 0,
+      rotationSpeed: 0.3 * (Math.random() - 0.5)
+    },
+    {
+      x: rocket.x,
+      y: rocket.y,
+      width: rocket.width,
+      height: rocket.height / 3,
+      colour: "#0066ff",
+      vx: 6 * (Math.random() - 0.5),
+      vy: -5,
+      rotation: 0,
+      rotationSpeed: 0.3 * (Math.random() - 0.5)
+    },
+    {
+      x: rocket.x - rocket.width / 2,
+      y: rocket.y + rocket.height / 3,
+      width: rocket.width / 2,
+      height: rocket.height / 3,
+      colour: "#0066ff",
+      vx: -4,
+      vy: -3,
+      rotation: 0,
+      rotationSpeed: 0.3 * (Math.random() - 0.5)
+    },
+    {
+      x: rocket.x + rocket.width / 2,
+      y: rocket.y + rocket.height / 3,
+      width: rocket.width / 2,
+      height: rocket.height / 3,
+      colour: "#0066ff",
+      vx: 4,
+      vy: -3,
+      rotation: 0,
+      rotationSpeed: 0.3 * (Math.random() - 0.5)
+    }
+  ];
+  screenShake = 20;
+  explosionSound.currentTime = 0;
+  explosionSound.play();
+}
+
+function endGame() {
+  gameActive = false;
+  canRestart = true;
+  GAME_OVER_ELEMENT.style.display = "block";
+  FINAL_SCORE_ELEMENT.textContent = `Final Score: ${score}`;
+  if (!highScore || score > highScore) {
+    highScore = score;
+    localStorage.setItem("neonVoyageHighScore", highScore);
+  }
+  HIGH_SCORE_ELEMENT.textContent = "High Score: " + (highScore || 0);
+}
+
+function pauseGame() {
+  paused = !paused;
+  if (paused) {
+    PAUSE_SCREEN.style.display = "block";
+    cancelAnimationFrame(animationId);
+    bgMusic.pause();
+  } else {
+    PAUSE_SCREEN.style.display = "none";
+    bgMusic.play();
+    gameLoop();
+  }
+}
+
+function updateUI() {
+  MULTIPLIER_ELEMENT.textContent = "Multiplier: " + scoreMultiplier.toFixed(1) + "x";
+  BOOST_METER_ELEMENT.textContent = "Boost: " + Math.floor((rocket.boostActive ? (rocket.boostTimer / 3) * 100 : 0)) + "%";
+}
+
+// ----------------------- GAME LOOP -----------------------
+function gameLoop() {
+  if (!gameActive || paused) return;
+  time += 0.016;
+  
+  CTX.save();
+  if (screenShake > 0) {
+    const shakeX = (Math.random() - 0.5) * screenShake;
+    const shakeY = (Math.random() - 0.5) * screenShake;
+    CTX.translate(shakeX, shakeY);
+    screenShake *= 0.9;
+  }
+  
+  drawBackground();
+  drawStars();
+  updateObstacles();
+  obstacles.forEach(obs => drawObstacle(obs.x, obs.y, obs.radius, obs));
+  drawPowerUps();
+  updateRocket();
+  updateCollisions();
+  drawRocket();
+  drawParticles();
+  drawShootingStars();
+  updateUI();
+  
+  CTX.restore();
+  animationId = requestAnimationFrame(gameLoop);
+}
+
+// ----------------------- EVENT HANDLERS -----------------------
+document.addEventListener("keydown", e => {
+  keys[e.code] = true;
+  if (e.code === "KeyP") {
+    pauseGame();
+  }
+  if (canRestart && !gameActive) {
+    startGame();
+  }
+});
+document.addEventListener("keyup", e => {
+  keys[e.code] = false;
+});
+const leftBtn = document.getElementById("leftBtn");
+const rightBtn = document.getElementById("rightBtn");
+leftBtn.addEventListener("mousedown", () => keys.ArrowLeft = true);
+leftBtn.addEventListener("mouseup", () => keys.ArrowLeft = false);
+leftBtn.addEventListener("touchstart", e => { e.preventDefault(); keys.ArrowLeft = true; });
+leftBtn.addEventListener("touchend", e => { e.preventDefault(); keys.ArrowLeft = false; });
+rightBtn.addEventListener("mousedown", () => keys.ArrowRight = true);
+rightBtn.addEventListener("mouseup", () => keys.ArrowRight = false);
+rightBtn.addEventListener("touchstart", e => { e.preventDefault(); keys.ArrowRight = true; });
+rightBtn.addEventListener("touchend", e => { e.preventDefault(); keys.ArrowRight = false; });
+START_BTN.addEventListener("click", () => {
+  START_SCREEN.style.display = "none";
+  startGame();
+});
+RESTART_BTN.addEventListener("click", () => {
+  startGame();
+});
+setInterval(() => {
+  if (gameActive && Math.random() < POWERUP_SPAWN_CHANCE) {
+    spawnPowerUp();
+  }
+}, 500);
+function startGame() {
+  if (animationId) {
+    cancelAnimationFrame(animationId);
+    animationId = null;
+  }
+  highScore = parseInt(localStorage.getItem("neonVoyageHighScore")) || 0;
+  initGame();
+  bgMusic.currentTime = 0;
+  bgMusic.play();
+  gameLoop();
+}
 </script>
 </body>
 </html>
