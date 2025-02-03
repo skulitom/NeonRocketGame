@@ -140,39 +140,6 @@
       margin-bottom: 20px;
     }
     
-    /* On-screen controls styling */
-    #controls {
-      margin-top: 20px;
-      display: flex;
-      gap: 20px;
-      justify-content: center;
-    }
-    .control-btn {
-      background: linear-gradient(145deg, rgba(0, 255, 255, 0.3), rgba(0, 255, 255, 0.1));
-      border: none;
-      color: #0ff;
-      font-size: 24px;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      cursor: pointer;
-      transition: transform 0.2s, background 0.2s;
-      user-select: none;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    }
-    .control-btn:hover {
-      background: linear-gradient(145deg, rgba(0, 255, 255, 0.4), rgba(0, 255, 255, 0.2));
-      transform: scale(1.1);
-    }
-    .control-btn:active {
-      transform: scale(0.95);
-    }
-    
-    /* Hide movement controls on desktop */
-    @media (min-width: 700px) {
-      #controls { display: none; }
-    }
-    
     /* Adjust UI text sizes for smaller screens */
     @media (max-width: 600px) {
       #gameInfo h1 { font-size: 20px; }
@@ -180,7 +147,6 @@
       #startScreen h2, #gameOver h2 { font-size: 22px; }
       #instructions { font-size: 12px; }
       #startBtn, #restartBtn { font-size: 14px; padding: 6px 12px; }
-      .control-btn { font-size: 18px; width: 35px; height: 35px; }
     }
   </style>
 </head>
@@ -211,11 +177,6 @@
       </div>
       <div id="pauseScreen" style="display: none;">Paused</div>
       <canvas id="gameCanvas" width="768" height="1024"></canvas>
-    </div>
-    <!-- On-screen controls (hidden on desktop) -->
-    <div id="controls">
-      <button id="leftBtn" class="control-btn">←</button>
-      <button id="rightBtn" class="control-btn">→</button>
     </div>
   </div>
 
@@ -256,8 +217,6 @@
     const PAUSE_SCREEN = document.getElementById("pauseScreen");
     const START_BTN = document.getElementById("startBtn");
     const RESTART_BTN = document.getElementById("restartBtn");
-    const leftBtn = document.getElementById("leftBtn");
-    const rightBtn = document.getElementById("rightBtn");
 
     // Audio elements
     const bgMusic = document.getElementById("bgMusic");
@@ -312,6 +271,42 @@
       keys.KeyA = false;
       keys.KeyD = false;
     });
+
+    // Global touch event handlers – these now check whether the target is part of the UI.
+    document.addEventListener('touchstart', function(e) {
+      // Allow UI elements (buttons, start screen, game over screen, pause screen) to handle the event.
+      if (e.target.closest('#startScreen, #gameOver, #pauseScreen, button')) {
+        return;
+      }
+      e.preventDefault(); // Prevent default scrolling behaviour
+      const touchX = e.touches[0].clientX;
+      const screenMidpoint = window.innerWidth / 2;
+      if (touchX < screenMidpoint) {
+        keys.ArrowLeft = true;
+      } else {
+        keys.ArrowRight = true;
+      }
+    }, { passive: false });
+
+    document.addEventListener('touchend', function(e) {
+      // Allow UI elements to handle the event.
+      if (e.target.closest('#startScreen, #gameOver, #pauseScreen, button')) {
+        return;
+      }
+      e.preventDefault();
+      keys.ArrowLeft = false;
+      keys.ArrowRight = false;
+    }, { passive: false });
+
+    document.addEventListener('touchcancel', function(e) {
+      // Allow UI elements to handle the event.
+      if (e.target.closest('#startScreen, #gameOver, #pauseScreen, button')) {
+        return;
+      }
+      e.preventDefault();
+      keys.ArrowLeft = false;
+      keys.ArrowRight = false;
+    }, { passive: false });
 
     // Initialise the game state.
     function initGame() {
@@ -504,7 +499,6 @@
         p.opacity = p.life;
       }
       CTX.globalAlpha = 1;
-      // Cap particle count for performance.
       if (particles.length > 500) particles = particles.slice(-500);
       particles = particles.filter(p => p.life > 0);
     }
@@ -624,6 +618,7 @@
     }
 
     function updateRocket(dt) {
+      // If the rocket is breaking down, skip rocket movement updates.
       if (rocket.isBreakingDown) return;
       rocket.acceleration.x = (keys.ArrowLeft || keys.KeyA ? -0.8 : (keys.ArrowRight || keys.KeyD ? 0.8 : 0));
       rocket.thrustPower = (keys.ArrowLeft || keys.KeyA || keys.ArrowRight || keys.KeyD) ? 0.8 : Math.max(0, rocket.thrustPower - 0.2);
@@ -647,7 +642,7 @@
       if (keys.ArrowLeft || keys.KeyA || keys.ArrowRight || keys.KeyD) {
         spawnRocketParticle();
       }
-      scoreMultiplier = 1 + time / 60;
+      // (Removed multiplier update from here so it always updates in the simulation.)
     }
 
     function updateObstacles(dt) {
@@ -886,10 +881,13 @@
     let lastTime = performance.now();
 
     function updateSimulation(dt) {
+      // Only update simulation if the game is active.
+      if (!gameActive) return;
       updateRocket(dt);
+      // Always update the multiplier (even if the rocket is breaking down)
+      scoreMultiplier = 1 + time / 60;
       updateObstacles(dt);
       updateCollisions(dt);
-      // (Other simulation updates could be added here.)
     }
 
     function render() {
@@ -938,19 +936,7 @@
       keys[e.code] = false;
     });
 
-    // Mobile on-screen controls.
-    leftBtn.addEventListener("mousedown", () => keys.ArrowLeft = true);
-    leftBtn.addEventListener("mouseup", () => keys.ArrowLeft = false);
-    leftBtn.addEventListener("touchstart", e => { e.preventDefault(); keys.ArrowLeft = true; });
-    leftBtn.addEventListener("touchend", e => { e.preventDefault(); keys.ArrowLeft = false; });
-    leftBtn.addEventListener("touchcancel", e => { e.preventDefault(); keys.ArrowLeft = false; });
-
-    rightBtn.addEventListener("mousedown", () => keys.ArrowRight = true);
-    rightBtn.addEventListener("mouseup", () => keys.ArrowRight = false);
-    rightBtn.addEventListener("touchstart", e => { e.preventDefault(); keys.ArrowRight = true; });
-    rightBtn.addEventListener("touchend", e => { e.preventDefault(); keys.ArrowRight = false; });
-    rightBtn.addEventListener("touchcancel", e => { e.preventDefault(); keys.ArrowRight = false; });
-
+    // Pointerup resets keys for mouse interactions.
     window.addEventListener("pointerup", () => {
       keys.ArrowLeft = false;
       keys.ArrowRight = false;
@@ -976,7 +962,9 @@
         cancelAnimationFrame(animationId);
         animationId = null;
       }
-      highScore = parseInt(localStorage.getItem("neonVoyageHighScore")) || 0;
+      // Retrieve the high score robustly.
+      const storedHighScore = localStorage.getItem("neonVoyageHighScore");
+      highScore = (storedHighScore !== null && !isNaN(parseInt(storedHighScore))) ? parseInt(storedHighScore) : 0;
       initGame();
       bgMusic.currentTime = 0;
       try { bgMusic.play(); } catch(e) {}
