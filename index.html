@@ -45,12 +45,13 @@
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
     }
     
-    /* Canvas styles */
+    /* Canvas styles (using a hardware acceleration hint) */
     #gameCanvas {
       display: block;
       width: 100%;
       height: 100%;
       border-radius: 10px;
+      will-change: transform;
     }
     
     /* UI overlays */
@@ -218,7 +219,7 @@
     </div>
   </div>
 
-  <!-- Audio elements (provide your own audio files) -->
+  <!-- Audio elements (if files are not present these calls are safely caught) -->
   <audio id="bgMusic" loop>
     <source src="bg-music.mp3" type="audio/mpeg">
   </audio>
@@ -233,10 +234,13 @@
   </audio>
 
   <script>
-    // Updated simulation resolution (portrait orientation)
+    // Constants and cached values
     const SIM_WIDTH = 768;
     const SIM_HEIGHT = 1024;
+    const TWO_PI = Math.PI * 2;
     let containerScale = 1;
+    let backgroundGradient; // Cached background gradient
+    let lastUIUpdate = 0;   // For throttling UI updates
 
     // DOM elements
     const gameContainer = document.getElementById('gameContainer');
@@ -255,6 +259,12 @@
     const leftBtn = document.getElementById("leftBtn");
     const rightBtn = document.getElementById("rightBtn");
 
+    // Audio elements
+    const bgMusic = document.getElementById("bgMusic");
+    const explosionSound = document.getElementById("explosionSound");
+    const powerUpSound = document.getElementById("powerUpSound");
+    const boostSound = document.getElementById("boostSound");
+
     // Offscreen canvas for star drawing
     const offscreenCanvas = document.createElement("canvas");
     const offscreenCtx = offscreenCanvas.getContext("2d");
@@ -268,9 +278,9 @@
     let screenShake = 0;
     const keys = {};
 
-    // Update the scale function with extra padding to display side borders on mobile
+    // Update scale with extra padding for mobile.
     function updateScale() {
-      const padding = 40; // Adjust padding as needed
+      const padding = 40;
       containerScale = Math.min((window.innerWidth - padding) / SIM_WIDTH, (window.innerHeight - padding) / SIM_HEIGHT);
       gameContainer.style.width = (SIM_WIDTH * containerScale) + "px";
       gameContainer.style.height = (SIM_HEIGHT * containerScale) + "px";
@@ -284,6 +294,9 @@
       CANVAS.height = SIM_HEIGHT * effectiveScale;
       CTX.setTransform(1, 0, 0, 1, 0, 0);
       CTX.scale(effectiveScale, effectiveScale);
+      backgroundGradient = CTX.createLinearGradient(0, 0, 0, SIM_HEIGHT);
+      backgroundGradient.addColorStop(0, "#0a0a0a");
+      backgroundGradient.addColorStop(1, "#1a1a2e");
     }
 
     window.addEventListener('resize', () => {
@@ -293,7 +306,6 @@
     updateScale();
     setupCanvas();
 
-    // Ensure that when the window loses focus, keys are cleared (prevents runaway input)
     window.addEventListener('blur', () => {
       keys.ArrowLeft = false;
       keys.ArrowRight = false;
@@ -301,7 +313,7 @@
       keys.KeyD = false;
     });
 
-    // Initialise the game
+    // Initialise the game state.
     function initGame() {
       rocket = {
         x: SIM_WIDTH / 2,
@@ -318,14 +330,16 @@
         shieldActive: false,
         shieldTimer: 0,
         boostActive: false,
-        boostTimer: 0
+        boostTimer: 0,
+        bodyGrad: null,
+        cockpitGrad: null
       };
 
       stars = Array.from({length: 150}, () => ({
         x: Math.random() * SIM_WIDTH,
         y: Math.random() * SIM_HEIGHT,
         radius: 1.5 * Math.random(),
-        color: `rgba(255, 255, 255, ${0.8 * Math.random() + 0.2})`
+        colour: `rgba(255, 255, 255, ${0.8 * Math.random() + 0.2})`
       }));
 
       obstacles = [];
@@ -354,11 +368,8 @@
       PAUSE_SCREEN.style.display = "none";
     }
 
-    // Drawing functions – all drawing uses SIM_WIDTH and SIM_HEIGHT.
+    // Drawing functions
     function drawBackground() {
-      let backgroundGradient = CTX.createLinearGradient(0, 0, 0, SIM_HEIGHT);
-      backgroundGradient.addColorStop(0, "#0a0a0a");
-      backgroundGradient.addColorStop(1, "#1a1a2e");
       CTX.fillStyle = backgroundGradient;
       CTX.fillRect(0, 0, SIM_WIDTH, SIM_HEIGHT);
     }
@@ -366,9 +377,9 @@
     function drawStars() {
       offscreenCtx.clearRect(0, 0, SIM_WIDTH, SIM_HEIGHT);
       stars.forEach(star => {
-        offscreenCtx.fillStyle = star.color;
+        offscreenCtx.fillStyle = star.colour;
         offscreenCtx.beginPath();
-        offscreenCtx.arc(star.x, star.y, star.radius, 0, 2 * Math.PI);
+        offscreenCtx.arc(star.x, star.y, star.radius, 0, TWO_PI);
         offscreenCtx.fill();
         star.y += scrollSpeed * (star.radius / 2 + 0.5);
         if (star.y > SIM_HEIGHT) {
@@ -387,22 +398,26 @@
       CTX.save();
       CTX.translate(rocket.x, rocket.y);
       CTX.rotate(rocket.rotation);
+      if (!rocket.bodyGrad) {
+        rocket.bodyGrad = CTX.createLinearGradient(0, -rocket.height/2, 0, rocket.height/2);
+        rocket.bodyGrad.addColorStop(0, "#00ffff");
+        rocket.bodyGrad.addColorStop(1, "#0066ff");
+      }
       CTX.beginPath();
       CTX.moveTo(-rocket.width / 2, rocket.height / 2);
       CTX.lineTo(0, -rocket.height / 2);
       CTX.lineTo(rocket.width / 2, rocket.height / 2);
       CTX.closePath();
-      let bodyGrad = CTX.createLinearGradient(0, -rocket.height / 2, 0, rocket.height / 2);
-      bodyGrad.addColorStop(0, "#00ffff");
-      bodyGrad.addColorStop(1, "#0066ff");
-      CTX.fillStyle = bodyGrad;
+      CTX.fillStyle = rocket.bodyGrad;
       CTX.fill();
+      if (!rocket.cockpitGrad) {
+        rocket.cockpitGrad = CTX.createRadialGradient(0, -rocket.height/2 + rocket.height/5, rocket.width/10, 0, -rocket.height/2 + rocket.height/5, rocket.width/5);
+        rocket.cockpitGrad.addColorStop(0, "rgba(255,255,255,0.9)");
+        rocket.cockpitGrad.addColorStop(1, "rgba(255,255,255,0.1)");
+      }
       CTX.beginPath();
-      CTX.arc(0, -rocket.height / 2 + rocket.height / 5, rocket.width / 5, 0, Math.PI * 2);
-      let cockpitGrad = CTX.createRadialGradient(0, -rocket.height / 2 + rocket.height / 5, rocket.width / 10, 0, -rocket.height / 2 + rocket.height / 5, rocket.width / 5);
-      cockpitGrad.addColorStop(0, "rgba(255,255,255,0.9)");
-      cockpitGrad.addColorStop(1, "rgba(255,255,255,0.1)");
-      CTX.fillStyle = cockpitGrad;
+      CTX.arc(0, -rocket.height / 2 + rocket.height / 5, rocket.width / 5, 0, TWO_PI);
+      CTX.fillStyle = rocket.cockpitGrad;
       CTX.fill();
       if (keys.ArrowLeft || keys.KeyA || keys.ArrowRight || keys.KeyD) {
         CTX.beginPath();
@@ -430,10 +445,10 @@
       CTX.shadowBlur = 20;
       CTX.beginPath();
       for (let i = 0; i < obs.sides; i++) {
-        let angle = (2 * Math.PI * i) / obs.sides;
         let offset = obs.vertexOffsets[i];
         let dynamicFactor = 0.95 + 0.05 * Math.sin(obs.pulseOffset + 5 * time);
         let r = radius * offset * dynamicFactor;
+        let angle = obs.baseAngles[i];
         let vx = r * Math.cos(angle);
         let vy = r * Math.sin(angle);
         if (i === 0) {
@@ -468,7 +483,7 @@
         grad.addColorStop(1, "transparent");
         CTX.fillStyle = grad;
         CTX.beginPath();
-        CTX.arc(0, 0, pu.radius, 0, 2 * Math.PI);
+        CTX.arc(0, 0, pu.radius, 0, TWO_PI);
         CTX.fill();
         CTX.restore();
       });
@@ -476,36 +491,39 @@
     }
 
     function drawParticles() {
-      particles.forEach(p => {
-        CTX.save();
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
         CTX.globalAlpha = p.opacity;
         CTX.fillStyle = p.colour;
         CTX.beginPath();
-        CTX.arc(p.x, p.y, p.radius, 0, 2 * Math.PI);
+        CTX.arc(p.x, p.y, p.radius, 0, TWO_PI);
         CTX.fill();
-        CTX.restore();
         p.x += p.vx;
         p.y += p.vy;
         p.life -= 0.016;
         p.opacity = p.life;
-      });
+      }
+      CTX.globalAlpha = 1;
+      // Cap particle count for performance.
+      if (particles.length > 500) particles = particles.slice(-500);
       particles = particles.filter(p => p.life > 0);
     }
 
     function drawExplosionParticles() {
-      explosionParticles.forEach(p => {
-        CTX.save();
+      for (let i = 0; i < explosionParticles.length; i++) {
+        const p = explosionParticles[i];
         CTX.globalAlpha = p.opacity;
         CTX.fillStyle = p.colour;
         CTX.beginPath();
-        CTX.arc(p.x, p.y, p.radius, 0, 2 * Math.PI);
+        CTX.arc(p.x, p.y, p.radius, 0, TWO_PI);
         CTX.fill();
-        CTX.restore();
         p.x += p.vx;
         p.y += p.vy;
         p.life -= 0.016;
         p.opacity = p.life;
-      });
+      }
+      CTX.globalAlpha = 1;
+      if (explosionParticles.length > 300) explosionParticles = explosionParticles.slice(-300);
       explosionParticles = explosionParticles.filter(p => p.life > 0);
     }
 
@@ -544,19 +562,18 @@
           opacity: 1
         });
       }
-      shootingStars.forEach((star) => {
-        CTX.save();
+      for (let i = 0; i < shootingStars.length; i++) {
+        const star = shootingStars[i];
         CTX.strokeStyle = "rgba(255,255,255," + star.opacity + ")";
         CTX.lineWidth = 2;
         CTX.beginPath();
         CTX.moveTo(star.x, star.y);
         CTX.lineTo(star.x - star.length, star.y - star.length);
         CTX.stroke();
-        CTX.restore();
         star.x += star.vx;
         star.y += star.vy;
         star.opacity -= 0.02;
-      });
+      }
       shootingStars = shootingStars.filter(star => star.opacity > 0 && star.x < SIM_WIDTH && star.y < SIM_HEIGHT);
     }
 
@@ -585,7 +602,7 @@
         x: Math.random() * (SIM_WIDTH - 30) + 15,
         y: -30,
         radius: 15,
-        pulseOffset: 2 * Math.PI * Math.random(),
+        pulseOffset: TWO_PI * Math.random(),
         pulseSpeed: 0.1 + Math.random() * 0.1,
         type: Math.random() < 0.7 ? "shield" : "boost"
       });
@@ -606,16 +623,13 @@
       }
     }
 
-    function updateRocket() {
+    function updateRocket(dt) {
       if (rocket.isBreakingDown) return;
-      // Determine acceleration based on keys
       rocket.acceleration.x = (keys.ArrowLeft || keys.KeyA ? -0.8 : (keys.ArrowRight || keys.KeyD ? 0.8 : 0));
       rocket.thrustPower = (keys.ArrowLeft || keys.KeyA || keys.ArrowRight || keys.KeyD) ? 0.8 : Math.max(0, rocket.thrustPower - 0.2);
       rocket.velocity.x += rocket.acceleration.x;
       rocket.velocity.x *= 0.94;
-      if (Math.abs(rocket.velocity.x) < 0.1) {
-        rocket.velocity.x = 0;
-      }
+      if (Math.abs(rocket.velocity.x) < 0.1) rocket.velocity.x = 0;
       const currentMaxSpeed = rocket.boostActive ? rocket.maxSpeed * 1.5 : rocket.maxSpeed;
       rocket.velocity.x = Math.max(Math.min(rocket.velocity.x, currentMaxSpeed), -currentMaxSpeed);
       rocket.x += rocket.velocity.x;
@@ -623,9 +637,8 @@
       rocket.y = SIM_HEIGHT - 80 + 6 * Math.sin(2.5 * time);
       const targetRotation = 0.1 * rocket.velocity.x;
       rocket.rotation += 0.2 * (targetRotation - rocket.rotation);
-      
       if (rocket.boostActive) {
-        rocket.boostTimer -= 0.016;
+        rocket.boostTimer -= dt;
         if (rocket.boostTimer <= 0) {
           rocket.boostActive = false;
           rocket.boostTimer = 0;
@@ -637,70 +650,7 @@
       scoreMultiplier = 1 + time / 60;
     }
 
-    function updateCollisions() {
-      obstacles.forEach((obs, index) => {
-        const dx = rocket.x - obs.x;
-        const dy = rocket.y - obs.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance < rocket.width / 2 + obs.radius) {
-          if (!rocket.shieldActive && !rocket.isBreakingDown) {
-            initializeBreakdown();
-          } else if (rocket.shieldActive) {
-            obstacles.splice(index, 1);
-          }
-        }
-      });
-      powerUps.forEach((pu, index) => {
-        const dx = rocket.x - pu.x;
-        const dy = rocket.y - pu.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance < rocket.width / 2 + pu.radius) {
-          if (pu.type === "shield") {
-            rocket.shieldActive = true;
-            rocket.shieldTimer = 5;
-            powerUpSound.currentTime = 0;
-            powerUpSound.play();
-          } else if (pu.type === "boost") {
-            rocket.boostActive = true;
-            rocket.boostTimer = 3;
-            boostSound.currentTime = 0;
-            boostSound.play();
-          }
-          powerUps.splice(index, 1);
-        }
-      });
-    }
-
-    function updateAsteroidCollisions() {
-      for (let i = 0; i < obstacles.length; i++) {
-        for (let j = i + 1; j < obstacles.length; j++) {
-          const dx = obstacles[j].x - obstacles[i].x;
-          const dy = obstacles[j].y - obstacles[i].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          const minDist = obstacles[i].radius + obstacles[j].radius;
-          if (dist < minDist && dist > 0) {
-            const nx = dx / dist;
-            const ny = dy / dist;
-            const penetration = minDist - dist;
-            obstacles[i].x -= (penetration * nx) / 2;
-            obstacles[i].y -= (penetration * ny) / 2;
-            obstacles[j].x += (penetration * nx) / 2;
-            obstacles[j].y += (penetration * ny) / 2;
-            const vxDiff = obstacles[i].vx - obstacles[j].vx;
-            const vyDiff = obstacles[i].vy - obstacles[j].vy;
-            const dotProduct = vxDiff * nx + vyDiff * ny;
-            if (dotProduct < 0) {
-              obstacles[i].vx -= dotProduct * nx;
-              obstacles[i].vy -= dotProduct * ny;
-              obstacles[j].vx += dotProduct * nx;
-              obstacles[j].vy += dotProduct * ny;
-            }
-          }
-        }
-      }
-    }
-
-    function updateObstacles() {
+    function updateObstacles(dt) {
       obstacles.forEach(obs => {
         obs.y += obs.vy;
         obs.x += obs.vx;
@@ -712,25 +662,7 @@
       
       let spawnChance = 0.03 + (score * 0.0005);
       if (Math.random() < spawnChance) {
-        let sides = 6 + Math.floor(Math.random() * 3);
-        let vertexOffsets = [];
-        for (let i = 0; i < sides; i++) {
-          vertexOffsets.push(0.9 + Math.random() * 0.2);
-        }
-        obstacles.push({
-          x: Math.random() * SIM_WIDTH,
-          y: -50,
-          radius: 20 + 30 * Math.random(),
-          colour: ["#ff3333", "#ff33ff", "#33ff33", "#3333ff", "#ffff33"][Math.floor(5 * Math.random())],
-          rotation: 2 * Math.random() * Math.PI,
-          rotationSpeed: 0.02 * (Math.random() - 0.5),
-          pulseOffset: 2 * Math.PI * Math.random(),
-          pulseSpeed: 0.02 + 0.03 * Math.random(),
-          sides: sides,
-          vertexOffsets: vertexOffsets,
-          vx: (Math.random() - 0.5) * 2,
-          vy: scrollSpeed
-        });
+        spawnObstacle();
       }
       
       const beforeCount = obstacles.length;
@@ -739,6 +671,128 @@
       score += Math.floor(removed * scoreMultiplier);
       SCORE_ELEMENT.textContent = `Score: ${score}`;
       scrollSpeed = 4 + score * 0.05;
+    }
+
+    function updateAsteroidCollisions() {
+      const gridSize = 100;
+      const grid = {};
+      obstacles.forEach(obs => {
+        let xIndex = Math.floor(obs.x / gridSize);
+        let yIndex = Math.floor(obs.y / gridSize);
+        let key = xIndex + ',' + yIndex;
+        if (!grid[key]) grid[key] = [];
+        grid[key].push(obs);
+      });
+      function checkCollision(a, b) {
+        const dx = a.x - b.x;
+        const dy = a.y - b.y;
+        const distSq = dx * dx + dy * dy;
+        const minDist = a.radius + b.radius;
+        if (distSq < minDist * minDist && distSq > 0) {
+          const dist = Math.sqrt(distSq);
+          const nx = dx / dist;
+          const ny = dy / dist;
+          const penetration = minDist - dist;
+          a.x += (penetration * nx) / 2;
+          a.y += (penetration * ny) / 2;
+          b.x -= (penetration * nx) / 2;
+          b.y -= (penetration * ny) / 2;
+          const vxDiff = a.vx - b.vx;
+          const vyDiff = a.vy - b.vy;
+          const dotProduct = vxDiff * nx + vyDiff * ny;
+          if (dotProduct < 0) {
+            a.vx -= dotProduct * nx;
+            a.vy -= dotProduct * ny;
+            b.vx += dotProduct * nx;
+            b.vy += dotProduct * ny;
+          }
+        }
+      }
+      for (let key in grid) {
+        const cellObstacles = grid[key];
+        for (let i = 0; i < cellObstacles.length; i++) {
+          for (let j = i + 1; j < cellObstacles.length; j++) {
+            checkCollision(cellObstacles[i], cellObstacles[j]);
+          }
+        }
+        let [xIndex, yIndex] = key.split(',').map(Number);
+        const neighbours = [
+          (xIndex-1)+','+(yIndex-1), (xIndex)+','+(yIndex-1), (xIndex+1)+','+(yIndex-1),
+          (xIndex-1)+','+(yIndex),                     (xIndex+1)+','+(yIndex),
+          (xIndex-1)+','+(yIndex+1), (xIndex)+','+(yIndex+1), (xIndex+1)+','+(yIndex+1)
+        ];
+        for (let nKey of neighbours) {
+          if (grid[nKey]) {
+            cellObstacles.forEach(a => {
+              grid[nKey].forEach(b => {
+                checkCollision(a, b);
+              });
+            });
+          }
+        }
+      }
+    }
+
+    function spawnObstacle() {
+      let sides = 6 + Math.floor(Math.random() * 3);
+      let vertexOffsets = [];
+      let baseAngles = [];
+      for (let i = 0; i < sides; i++) {
+        vertexOffsets.push(0.9 + Math.random() * 0.2);
+        baseAngles.push(TWO_PI * i / sides);
+      }
+      obstacles.push({
+        x: Math.random() * SIM_WIDTH,
+        y: -50,
+        radius: 20 + 30 * Math.random(),
+        colour: ["#ff3333", "#ff33ff", "#33ff33", "#3333ff", "#ffff33"][Math.floor(5 * Math.random())],
+        rotation: 2 * Math.random() * Math.PI,
+        rotationSpeed: 0.02 * (Math.random() - 0.5),
+        pulseOffset: TWO_PI * Math.random(),
+        pulseSpeed: 0.02 + 0.03 * Math.random(),
+        sides: sides,
+        vertexOffsets: vertexOffsets,
+        baseAngles: baseAngles,
+        vx: (Math.random() - 0.5) * 2,
+        vy: scrollSpeed
+      });
+    }
+
+    function updateCollisions(dt) {
+      const rocketCollisionRadius = rocket.width / 2;
+      obstacles.forEach((obs, index) => {
+        const dx = rocket.x - obs.x;
+        const dy = rocket.y - obs.y;
+        const distSq = dx * dx + dy * dy;
+        const collisionDist = rocketCollisionRadius + obs.radius;
+        if (distSq < collisionDist * collisionDist) {
+          if (!rocket.shieldActive && !rocket.isBreakingDown) {
+            initializeBreakdown();
+          } else if (rocket.shieldActive) {
+            obstacles.splice(index, 1);
+          }
+        }
+      });
+      powerUps.forEach((pu, index) => {
+        const dx = rocket.x - pu.x;
+        const dy = rocket.y - pu.y;
+        const distSq = dx * dx + dy * dy;
+        const collisionDist = rocketCollisionRadius + pu.radius;
+        if (distSq < collisionDist * collisionDist) {
+          if (pu.type === "shield") {
+            rocket.shieldActive = true;
+            rocket.shieldTimer = 5;
+            powerUpSound.currentTime = 0;
+            try { powerUpSound.play(); } catch(e) {}
+          } else if (pu.type === "boost") {
+            rocket.boostActive = true;
+            rocket.boostTimer = 3;
+            boostSound.currentTime = 0;
+            try { boostSound.play(); } catch(e) {}
+          }
+          powerUps.splice(index, 1);
+        }
+      });
     }
 
     function initializeBreakdown() {
@@ -791,7 +845,7 @@
       ];
       screenShake = 20;
       explosionSound.currentTime = 0;
-      explosionSound.play();
+      try { explosionSound.play(); } catch(e) {}
     }
 
     function endGame() {
@@ -811,22 +865,34 @@
       if (paused) {
         PAUSE_SCREEN.style.display = "block";
         cancelAnimationFrame(animationId);
-        bgMusic.pause();
+        try { bgMusic.pause(); } catch(e) {}
       } else {
         PAUSE_SCREEN.style.display = "none";
-        bgMusic.play();
-        gameLoop();
+        try { bgMusic.play(); } catch(e) {}
+        requestAnimationFrame(gameLoop);
       }
     }
 
     function updateUI() {
+      if (time - lastUIUpdate < 0.1) return;
+      lastUIUpdate = time;
       MULTIPLIER_ELEMENT.textContent = "Multiplier: " + scoreMultiplier.toFixed(1) + "x";
       BOOST_METER_ELEMENT.textContent = "Boost: " + Math.floor((rocket.boostActive ? (rocket.boostTimer / 3) * 100 : 0)) + "%";
     }
 
-    function gameLoop() {
-      if (!gameActive || paused) return;
-      time += 0.016;
+    // Decoupled simulation and rendering using a fixed timestep.
+    const fixedStep = 0.016; // 16 ms
+    let accumulator = 0;
+    let lastTime = performance.now();
+
+    function updateSimulation(dt) {
+      updateRocket(dt);
+      updateObstacles(dt);
+      updateCollisions(dt);
+      // (Other simulation updates could be added here.)
+    }
+
+    function render() {
       CTX.save();
       if (screenShake > 0) {
         const shakeX = (Math.random() - 0.5) * screenShake;
@@ -836,20 +902,29 @@
       }
       drawBackground();
       drawStars();
-      updateObstacles();
       obstacles.forEach(obs => drawObstacle(obs.x, obs.y, obs.radius, obs));
       drawPowerUps();
-      updateRocket();
-      updateCollisions();
       drawRocket();
       drawParticles();
       drawShootingStars();
       updateUI();
       CTX.restore();
+    }
+
+    function gameLoop(currentTime) {
+      let deltaTime = (currentTime - lastTime) / 1000;
+      lastTime = currentTime;
+      accumulator += deltaTime;
+      while (accumulator >= fixedStep) {
+        time += fixedStep;
+        updateSimulation(fixedStep);
+        accumulator -= fixedStep;
+      }
+      render();
       animationId = requestAnimationFrame(gameLoop);
     }
 
-    // Event handlers for keyboard
+    // Event handlers for keyboard.
     document.addEventListener("keydown", e => {
       keys[e.code] = true;
       if (e.code === "KeyP") {
@@ -863,7 +938,7 @@
       keys[e.code] = false;
     });
 
-    // Additional event listeners for on‑screen mobile controls
+    // Mobile on-screen controls.
     leftBtn.addEventListener("mousedown", () => keys.ArrowLeft = true);
     leftBtn.addEventListener("mouseup", () => keys.ArrowLeft = false);
     leftBtn.addEventListener("touchstart", e => { e.preventDefault(); keys.ArrowLeft = true; });
@@ -876,7 +951,6 @@
     rightBtn.addEventListener("touchend", e => { e.preventDefault(); keys.ArrowRight = false; });
     rightBtn.addEventListener("touchcancel", e => { e.preventDefault(); keys.ArrowRight = false; });
 
-    // In case of pointer cancellation, clear keys
     window.addEventListener("pointerup", () => {
       keys.ArrowLeft = false;
       keys.ArrowRight = false;
@@ -905,8 +979,10 @@
       highScore = parseInt(localStorage.getItem("neonVoyageHighScore")) || 0;
       initGame();
       bgMusic.currentTime = 0;
-      bgMusic.play();
-      gameLoop();
+      try { bgMusic.play(); } catch(e) {}
+      lastTime = performance.now();
+      accumulator = 0;
+      requestAnimationFrame(gameLoop);
     }
   </script>
 </body>
