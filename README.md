@@ -2,7 +2,7 @@
 
 **[Play Neon Voyage in your browser](https://skulitom.github.io/NeonRocketGame/)**: a free pixel-art rocket game for phones, tablets and computers. No download, no account.
 
-[![Neon Voyage: a pixel-art rocket flying between neon asteroids](assets/og-image.png)](https://skulitom.github.io/NeonRocketGame/)
+<a href="https://skulitom.github.io/NeonRocketGame/"><img src="media/gameplay.gif" width="300" alt="Neon Voyage gameplay: a pixel-art rocket weaves between neon asteroids, collects cyan shards and a boost during a meteor storm"></a>
 
 Fly a neon rocket through an endless asteroid field. Graze rocks for points and a bigger multiplier, collect lines of shards, and grab shields, boosts and novas. Every so often a meteor storm rolls in.
 

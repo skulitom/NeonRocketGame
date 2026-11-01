@@ -216,8 +216,8 @@ export class Game {
 
   seedDecor() {
     this.decor = [];
-    this.addDecor(this.vh * 0.15, 'nebula-a');
-    this.addDecor(this.vh * 0.55, 'planet');
+    this.addDecor(this.vh * 0.42, 'nebula-a');
+    this.addDecor(-this.vh * 0.02, 'planet'); // up top, clear of the rocket's lane
   }
   addDecor(y, kind) {
     const kinds = ['nebula-a', 'nebula-b', 'planet', 'moon', 'nebula-b'];
