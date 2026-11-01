@@ -2,17 +2,17 @@
 
 **[Play Neon Voyage in your browser](https://skulitom.github.io/NeonRocketGame/)**: a free pixel-art rocket game for phones, tablets and computers. No download, no account.
 
-<a href="https://skulitom.github.io/NeonRocketGame/"><img src="media/gameplay.gif" width="300" alt="Neon Voyage gameplay: a pixel-art rocket weaves between neon asteroids, collects cyan shards and a boost during a meteor storm"></a>
+<a href="https://skulitom.github.io/NeonRocketGame/"><img src="media/gameplay.gif" width="300" alt="Neon Voyage gameplay: a small pixel-art rocket darts side to side between neon asteroids in a meteor storm, picks up a shield, then breaks apart when a rock hits it"></a>
 
-Fly a neon rocket through an endless asteroid field. Graze rocks for points and a bigger multiplier, collect lines of shards, and grab shields, boosts and novas. Every so often a meteor storm rolls in.
+Fly a small, quick neon rocket side to side through an endless asteroid field. It leans into every turn and breaks apart when it hits. Graze rocks for points and a bigger multiplier, collect lines of shards, and grab shields, boosts and novas. The asteroids knock each other about, and every so often a meteor storm rolls in.
 
 ## Controls
 
 | Device | Steer | Other |
 | --- | --- | --- |
-| Computer | Arrow keys or WASD, or move the mouse over the game | P or Esc pauses, M turns sound off and on |
-| Phone or tablet | Drag anywhere: the rocket moves as your finger moves, so your thumb never covers it | Pause and sound buttons in the corner |
-| Gamepad | Left stick or d-pad | A starts, Start pauses |
+| Computer | Left and right arrows, or A and D | Any key plays again after a crash; P or Esc pauses, M turns sound off and on |
+| Phone or tablet | Hold the left or right side of the screen | Tap to play again; pause and sound buttons in the corner |
+| Gamepad | Left stick or d-pad, left and right | A starts, Start pauses |
 
 ## Made with Pixelbolt
 
@@ -20,7 +20,7 @@ Every sprite, effect and letter is a [Pixelbolt](https://github.com/skulitom/Pix
 
 | | |
 | --- | --- |
-| ![The rocket's banking frames](media/rocket.png) | **Rocket** ([rocket.json](art/rocket.json)): a palette grid in five banking frames. |
+| ![The rocket leaning from 30 degrees left to 30 degrees right](media/rocket.png) | **Rocket** ([rocket.poses.json](art/rocket.poses.json)): a palette grid in five roll frames, tilted up to 30 degrees by RotSprite rotation, each with its turned nozzle point. Its crash pieces (nose, cockpit, tail, fins) are cut from the same grid and spun through 16 angles. |
 | ![Three neon asteroids turning](media/rocks.gif) | **Asteroids** ([rocks.poses.json](art/rocks.poses.json)): three rock bodies turned through 16 angles by RotSprite rotation, then lit from a fixed light with a neon edge and glow. Three colours are copies with the neon remapped. |
 | ![The rocket's exhaust plume](media/exhaust.gif) | **Exhaust** ([exhaust.fluid.json](art/exhaust.fluid.json)): a fluid simulation the game runs live with Pixelbolt's `createLiveFluid`. Steering stirs the gas and a boost flares it. This GIF is the baked loop the game shows until the solver has loaded. |
 | ![The rocket exploding](media/boom.gif) | **Effects** ([boom.fx.json](art/boom.fx.json), [bursts.fx.json](art/bursts.fx.json), [shield.fx.json](art/shield.fx.json), [nova.fx.json](art/nova.fx.json)): particles and shapes (shock rings, impact stars, fireballs, tumbling debris, a boiling shield bubble). |

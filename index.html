@@ -84,8 +84,8 @@
         <p class="tagline">Dodge neon rocks, graze them for points, grab power-ups.</p>
         <button id="playBtn" class="primary" type="button">Play</button>
         <p class="best">Best <span id="bestTitle">0</span></p>
-        <p class="controls for-keys">Arrows or WASD, or move the mouse · P pause · M sound</p>
-        <p class="controls for-touch">Drag anywhere to steer</p>
+        <p class="controls for-keys">Left and right arrows or A and D · P pause · M sound<br>Press any key to play</p>
+        <p class="controls for-touch">Hold the left or right side to steer<br>Tap to play</p>
         <div class="row">
           <button id="musicBtn" class="small" type="button" aria-pressed="true">Music: on</button>
           <a class="small more" href="#about">How it was made</a>
@@ -114,6 +114,8 @@
           <div><dt>Smashed</dt><dd id="statSmashed">0</dd></div>
         </dl>
         <button id="againBtn" class="primary" type="button">Play again</button>
+        <p class="controls for-keys">or press any key</p>
+        <p class="controls for-touch">or tap anywhere</p>
         <div class="row">
           <button id="shareBtn" class="small" type="button">Share score</button>
           <button id="menuBtn" class="small" type="button">Menu</button>
@@ -132,9 +134,9 @@
 
     <h2>How to play</h2>
     <dl class="controls-list">
-      <div><dt>Computer</dt><dd>Arrow keys or WASD, or move the mouse over the game and the rocket follows it. P or Esc pauses, M turns the sound off and on.</dd></div>
-      <div><dt>Phone or tablet</dt><dd>Drag anywhere on the screen. The rocket moves as your finger moves, so your thumb never hides it. Add the page to your home screen to play full screen.</dd></div>
-      <div><dt>Gamepad</dt><dd>Left stick or d-pad to steer, A to start, Start to pause.</dd></div>
+      <div><dt>Computer</dt><dd>The left and right arrow keys, or A and D. The rocket only moves side to side, fast, and leans into each turn. P or Esc pauses, M turns the sound off and on. After a crash, press any key to fly again.</dd></div>
+      <div><dt>Phone or tablet</dt><dd>Touch and hold the left or right side of the screen; slide across the middle to switch. Your thumbs stay at the edges, clear of the rocket. Tap to fly again after a crash. Add the page to your home screen to play full screen.</dd></div>
+      <div><dt>Gamepad</dt><dd>Left stick or d-pad left and right to steer, A to start, Start to pause.</dd></div>
     </dl>
 
     <h2>Scoring</h2>
@@ -142,7 +144,7 @@
       <li><strong>Distance.</strong> Points every second, faster as the asteroid field speeds up.</li>
       <li><strong>Grazes.</strong> Fly close to a rock without touching it: points, and your multiplier rises by 0.1, up to ×5. Stop taking risks and it drifts back down.</li>
       <li><strong>Shards.</strong> Cyan crystals come in lines of five. Each is worth 25 points times your multiplier, and a whole line earns a bonus.</li>
-      <li><strong>Smashing.</strong> Rocks broken by a shield, a boost or a nova score too. Every so often a meteor storm rolls in.</li>
+      <li><strong>Smashing.</strong> Rocks broken by a shield, a boost or a nova score too. Asteroids knock each other about, so watch for one bouncing into your path, and every so often a meteor storm rolls in.</li>
     </ul>
 
     <h2>Power-ups</h2>
@@ -154,7 +156,7 @@
 
     <h2>Made with Pixelbolt</h2>
     <p>Every sprite, effect and letter in Neon Voyage was made with <a href="https://github.com/skulitom/Pixelbolt">Pixelbolt</a>, an open-source pixel-art toolkit built for AI agents. Each piece of art is a small JSON recipe, and Pixelbolt turns it into exact pixels: no image model and no hand painting in an editor. An AI agent wrote these recipes, looked at what they drew and fixed them, the way Pixelbolt is meant to be used. The recipes are in the game's <a href="https://github.com/skulitom/NeonRocketGame/tree/main/art">art folder</a>, and <code>art/build.mjs</code> rebuilds every image from them.</p>
-    <figure class="wide"><img src="media/rocket.png" width="417" height="87" alt="The rocket's five banking frames, from hard left to hard right" loading="lazy"><figcaption><strong>The rocket</strong> is a palette grid in five banking frames: the cockpit slides with the roll and the lowered fin foreshortens. (<a href="https://github.com/skulitom/NeonRocketGame/blob/main/art/rocket.json">rocket.json</a>)</figcaption></figure>
+    <figure class="wide"><img src="media/rocket.png" width="672" height="102" alt="The rocket leaning from 30 degrees left to 30 degrees right" loading="lazy"><figcaption><strong>The rocket</strong> is a palette grid in five roll frames. Pixelbolt's RotSprite rotation tilts them up to 30 degrees, so it rolls and leans into each turn, and each tilted frame carries its turned nozzle point for the exhaust. When it is hit it breaks into nose, cockpit, tail and fins, each spun through sixteen angles. (<a href="https://github.com/skulitom/NeonRocketGame/blob/main/art/rocket.poses.json">rocket.poses.json</a>)</figcaption></figure>
     <figure class="wide"><img src="media/rocks.gif" width="288" height="102" alt="Three neon asteroids turning" loading="lazy"><figcaption><strong>Asteroids</strong> are three rock bodies turned through sixteen angles with Pixelbolt's RotSprite rotation. The light stays put: each angle gets its rim light, shadow edge, neon outline and glow after it turns. Three hazard colours are copies with the neon swapped. (<a href="https://github.com/skulitom/NeonRocketGame/blob/main/art/rocks.poses.json">rocks.poses.json</a>)</figcaption></figure>
     <figure class="wide"><img src="media/exhaust.gif" width="90" height="228" alt="The rocket's plasma exhaust plume" loading="lazy"><figcaption><strong>The exhaust</strong> is a fluid simulation running live in your browser with Pixelbolt's <code>createLiveFluid</code>. Your steering stirs the gas, so the plume bends as you turn and flares when you boost. (<a href="https://github.com/skulitom/NeonRocketGame/blob/main/art/exhaust.fluid.json">exhaust.fluid.json</a>)</figcaption></figure>
     <figure class="wide"><img src="media/boom.gif" width="176" height="176" alt="The rocket exploding into hull pieces, fire and a plasma ring" loading="lazy"><figcaption><strong>Explosions, shatters, pickups, the shield bubble and the nova</strong> are particle and shape effects compiled from Pixelbolt effect sources: shock rings, impact stars, fireballs and tumbling debris. (<a href="https://github.com/skulitom/NeonRocketGame/blob/main/art/boom.fx.json">boom.fx.json</a>, <a href="https://github.com/skulitom/NeonRocketGame/blob/main/art/bursts.fx.json">bursts.fx.json</a>)</figcaption></figure>
@@ -164,7 +166,7 @@
     <h3>Is Neon Voyage free?</h3>
     <p>Yes. There are no ads, no accounts and no tracking. The game is open source under the MIT licence.</p>
     <h3>Does it work on my phone?</h3>
-    <p>Yes, in portrait or landscape, in any recent mobile browser. Drag to steer. On iPhone, Share then Add to Home Screen gives you a full-screen game.</p>
+    <p>Yes, in portrait or landscape, in any recent mobile browser. Hold the left or right side of the screen to steer. On iPhone, Share then Add to Home Screen gives you a full-screen game.</p>
     <h3>Is my best score saved?</h3>
     <p>Your best score and sound settings stay in this browser on this device. Nothing is sent anywhere.</p>
     <h3>Who made it?</h3>

@@ -1,19 +1,25 @@
 // Neon Voyage: the world, its rules and how it is drawn. Positions are game pixels on a canvas that the page enlarges
 // by a whole number, so every sprite stays crisp. All art comes from the Pixelbolt atlases in assets/.
-import { draw, frameOf, lengthOf, drawText, textWidth, formatScore } from './assets.js';
+import { sheets, draw, frameOf, lengthOf, drawText, textWidth, formatScore } from './assets.js';
 import { sfx } from './audio.js';
 
 const BG = '#07040f';
-const FIELD = [180, 240];             // playfield width range; wider screens get margins with the HUD in them
+const FIELD = [240, 360];              // playfield width range; wider screens get margins with the HUD in them
 const NEONS = ['pink', 'orange', 'violet'];
-const ROCKS = {                        // collision radius (a little inside the drawn rock) and points when smashed
-  s: { r: 3.6, points: 10 },
-  m: { r: 5.8, points: 15 },
-  l: { r: 8.2, points: 25 },
+const ROCKS = {                        // hit radius against the rocket (a little inside the drawn rock), radius against
+  s: { r: 3.6, body: 5, mass: 1, points: 10 },   // other rocks (the drawn rock with its edge), mass, points when smashed
+  m: { r: 5.8, body: 7.5, mass: 2.2, points: 15 },
+  l: { r: 8.2, body: 10.5, mass: 4.5, points: 25 },
 };
-const HIT = [[0, -3, 3.6], [0, 5, 5]]; // the rocket's hit circles: [dx, dy, r] from its anchor (smaller than it looks)
+const HIT = [[0, -6, 3], [0, 1, 4.5], [0, 8, 5.5]]; // the rocket's hit circles, upright: [dx, dy, r] from its anchor
 const GRAZE = 7;                       // a rock passing this close without touching counts as a graze
-const MAX_SPEED = 150;                 // rocket steering speed, game px/s
+const SPEED = 1.2;                     // top steering speed, playfield widths per second
+const RESPONSE = 26;                   // how fast the rocket reaches it (and stops): a time constant of about 40 ms
+const TILT = 30, TILT_RATE = 16;       // degrees of lean at top speed, and how fast the lean follows
+const TILTS = ['tilt-l30', 'tilt-l20', 'tilt-l10', 'tilt-0', 'tilt-r10', 'tilt-r20', 'tilt-r30'];
+const PIECES = {                       // where each crash piece sits on the upright ship, from its anchor
+  nose: [0, -9.5], cockpit: [0, -2.5], tail: [0, 7], 'fin-l': [-6.5, 6], 'fin-r': [6.5, 6],
+};
 const SHIELD_TIME = 12, BOOST_TIME = 4.5, MULT_MAX = 5;
 
 function rng(seed) {                   // mulberry32: a seed makes a run repeatable for tests
@@ -26,6 +32,10 @@ function rng(seed) {                   // mulberry32: a seed makes a run repeata
 }
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const lerp = (a, b, t) => a + (b - a) * t;
+const turn = ([x, y], deg) => {
+  const a = deg * Math.PI / 180, c = Math.cos(a), s = Math.sin(a);
+  return [x * c - y * s, x * s + y * c];
+};
 
 export class Game {
   constructor({ exhaust, onGameOver, reducedMotion, seed = Date.now() }) {
@@ -34,58 +44,54 @@ export class Game {
     this.reducedMotion = reducedMotion;
     this.touch = false;
     this.random = rng(seed);
-    this.vw = 200; this.vh = 300; this.insets = { top: 0, bottom: 0 };
+    this.vw = 240; this.vh = 400; this.insets = { top: 0, bottom: 0 };
+    this.fw = 240; this.fx = 0;
     this.mode = 'title';
     this.clock = 0;                    // ms of game time, for animations
     this.best = 0;
     this.reset();
-    this.decor = [];
     this.seedDecor();
   }
 
   resize(vw, vh, insets = this.insets) {
-    const first = this.vw === 200 && this.vh === 300;
     this.vw = vw; this.vh = vh; this.insets = insets;
     this.fw = clamp(vw, FIELD[0], FIELD[1]);
     this.fx = Math.floor((vw - this.fw) / 2);
-    this.rocket.x = clamp(this.rocket.x, this.fx + 10, this.fx + this.fw - 10);
-    this.rocket.y = clamp(this.rocket.y, this.minY(), this.maxY());
-    if (first) { this.rocket.x = this.fx + this.fw / 2; this.rocket.y = this.homeY(); this.seedDecor(); }
+    this.rocket.x = clamp(this.rocket.x, this.fx + 12, this.fx + this.fw - 12);
+    this.rocket.y = this.homeY();
   }
-  minY() { return Math.round(this.vh * 0.35); }
-  maxY() { return this.vh - 26 - this.insets.bottom; }
-  homeY() { return this.maxY() - 22; }
+  // On touch screens the thumbs rest near the bottom corners, so the rocket flies higher, clear of them.
+  homeY() { return (this.touch ? Math.round(this.vh * 0.8) : this.vh - 30) - this.insets.bottom; }
   // Speeds scale with the screen's height, so a rock takes as long to cross a phone as a monitor.
   get scale() { return this.vh / 300; }
 
   reset() {
-    this.rocket = { x: (this.fx ?? 0) + (this.fw ?? 200) / 2, y: this.homeY?.() ?? 250, vx: 0, vy: 0, bank: 0, flash: 0 };
-    this.rocks = []; this.shards = []; this.items = []; this.effects = []; this.popups = [];
+    this.rocket = { x: this.fx + this.fw / 2, y: this.homeY(), vx: 0, tilt: 0, flash: 0, thrust: 0 };
+    this.rocks = []; this.shards = []; this.items = []; this.effects = []; this.popups = []; this.pieces = [];
     this.time = 0; this.score = 0; this.mult = 1; this.lastGraze = -9;
     this.speed = 60; this.boost = 0; this.shield = 0; this.invuln = 0;
     this.shake = 0; this.flash = 0;
     this.stats = { shards: 0, grazes: 0, smashed: 0, powerups: 0 };
     this.timers = { rock: 0.6, shards: 2.5, item: 11, storm: 38, storming: 0 };
     this.lineCounts = new Map();
-    this.far = 0; this.near = 0; this.exhaustClock = 0;
+    this.far = 0; this.near = 0; this.exhaustClock = 0; this.knocked = 0;
     this.dyingFor = 0; this.newBest = false;
   }
 
   start() {
     this.reset();
-    this.rocket.x = this.fx + this.fw / 2; this.rocket.y = this.homeY();
     this.mode = 'playing';
   }
 
   // ------------------------------------------------------------ update
-  update(dt, input, pointerToGame) {
+  update(dt, input) {
     this.clock += dt * 1000;
-    if (this.mode === 'paused' || this.mode === 'over') return this.idle(dt);
-    const playing = this.mode === 'playing';
+    if (this.mode === 'paused') { this.shake = 0; return; }
+    const playing = this.mode === 'playing', wrecked = this.mode === 'dying' || this.mode === 'over';
     if (playing) this.time += dt;
 
     // World speed: rises over three minutes, faster while boosting, slowing to a drift after a crash.
-    const target = this.mode === 'title' ? 45 : this.mode === 'dying' ? 18 : lerp(62, 175, clamp(this.time / 180, 0, 1)) * (this.boost > 0 ? 1.9 : 1);
+    const target = this.mode === 'title' ? 45 : wrecked ? 22 : lerp(62, 175, clamp(this.time / 180, 0, 1)) * (this.boost > 0 ? 1.9 : 1);
     this.speed = lerp(this.speed, target, 1 - Math.exp(-dt * (this.boost > 0 ? 6 : 2)));
     const v = this.speed * this.scale;
     this.far = (this.far + v * 0.22 * dt) % 128;
@@ -95,67 +101,47 @@ export class Game {
     if (this.decor.length < 2 && this.random() < dt * 0.04) this.addDecor(-110);
 
     if (playing) {
-      this.steer(dt, input, pointerToGame);
+      this.steer(dt, input.direction());
       this.score += v * dt / 10 * this.mult * (this.boost > 0 ? 2 : 1);
       if (this.time - this.lastGraze > 2.5) this.mult = Math.max(1, this.mult - 0.05 * dt);
       this.boost = Math.max(0, this.boost - dt);
       this.shield = Math.max(0, this.shield - dt);
       this.invuln = Math.max(0, this.invuln - dt);
     } else if (this.mode === 'title') {
-      const r = this.rocket, t = this.clock / 1000;
-      const tx = this.fx + this.fw / 2 + Math.sin(t * 0.7) * this.fw * 0.22, ty = this.homeY() - 8 + Math.sin(t * 1.3) * 6;
-      const nvx = (tx - r.x) * 2.5, nvy = (ty - r.y) * 2.5;
-      r.vx = nvx; r.vy = nvy; r.x += nvx * dt; r.y += nvy * dt;
+      // The title screen flies itself: weaving across the lane, leaning into each turn.
+      const t = this.clock / 1000, tx = this.fx + this.fw / 2 + Math.sin(t * 0.8) * this.fw * 0.3 + Math.sin(t * 2.3) * 14;
+      this.steer(dt, Math.abs(tx - this.rocket.x) < 6 ? 0 : Math.sign(tx - this.rocket.x));
     }
     this.rocket.flash = Math.max(0, this.rocket.flash - dt);
-    const bank = clamp(this.rocket.vx / 95, -2, 2);
-    this.rocket.bank = lerp(this.rocket.bank, bank, 1 - Math.exp(-dt * 14));
+    this.rocket.y = this.homeY() + Math.sin(this.clock / 1000 * 2.5) * 1.5;
 
     this.spawn(dt);
     this.move(dt, v);
     if (playing) this.collide();
-    this.tick(dt);
+    this.tick(dt, v);
 
     // The exhaust simulates at 30 frames a second, whatever the display rate.
     this.exhaustClock += dt;
     while (this.exhaustClock >= 1 / 30) {
       this.exhaustClock -= 1 / 30;
-      if (this.mode !== 'dying') this.exhaust.step(this.rocket.vx, this.rocket.vy - (this.boost > 0 ? 40 : 0), this.boost > 0);
+      if (!wrecked) this.exhaust.step(this.rocket.vx, this.boost > 0 ? 2.6 : this.rocket.thrust ? 1.7 : 0);
     }
 
-    if (this.mode === 'dying') {
-      this.dyingFor += dt;
-      if (this.dyingFor > 1.6) { this.mode = 'over'; this.onGameOver?.(this.summary()); }
-    }
+    if (wrecked) this.dyingFor += dt;
+    if (this.mode === 'dying' && this.dyingFor > 1.2) { this.mode = 'over'; this.onGameOver?.(this.summary()); }
   }
 
-  // Paused and game-over screens keep the stars twinkling, nothing else.
-  idle(dt) { this.flash = Math.max(0, this.flash - dt); this.shake = 0; }
-
-  steer(dt, input, pointerToGame) {
-    const r = this.rocket;
-    const [dx, dy] = input.takeDrag();
-    const left = this.fx + 10, right = this.fx + this.fw - 10;
-    if (input.device === 'touch' && (dx || dy || input.drag.id !== null)) {
-      // Relative: the rocket moves as far as the finger, a little more, so short swipes cross the field.
-      const k = 1.35 * pointerToGame.scale;
-      const mx = dx * k, my = dy * k;
-      r.vx = lerp(r.vx, mx / dt, 0.35); r.vy = lerp(r.vy, my / dt, 0.35);
-      r.x += mx; r.y += my;
-      if (!dx && !dy) { r.vx *= 0.8; r.vy *= 0.8; }
-    } else if (input.device === 'mouse' && input.mouse.inside) {
-      const [tx, ty] = pointerToGame(input.mouse.x, input.mouse.y);
-      const nvx = clamp((tx - r.x) * 9, -MAX_SPEED * 1.6, MAX_SPEED * 1.6), nvy = clamp((ty - r.y) * 9, -MAX_SPEED * 1.6, MAX_SPEED * 1.6);
-      r.vx = nvx; r.vy = nvy; r.x += nvx * dt; r.y += nvy * dt;
-    } else {
-      const [ax, ay] = input.axis();
-      const accel = 1 - Math.exp(-dt * 12);
-      r.vx = lerp(r.vx, ax * MAX_SPEED, accel); r.vy = lerp(r.vy, ay * MAX_SPEED * 0.8, accel);
-      r.x += r.vx * dt; r.y += r.vy * dt;
-    }
-    if (r.x < left || r.x > right) { r.x = clamp(r.x, left, right); r.vx *= 0.3; }
-    if (r.y < this.minY() || r.y > this.maxY()) { r.y = clamp(r.y, this.minY(), this.maxY()); r.vy *= 0.3; }
+  // Side to side only, quick as a fly: the rocket reaches top speed or stops within a few frames, and leans into it.
+  steer(dt, dir) {
+    const r = this.rocket, top = SPEED * this.fw;
+    r.thrust = dir;
+    r.vx = lerp(r.vx, dir * top, 1 - Math.exp(-dt * RESPONSE));
+    r.x += r.vx * dt;
+    const left = this.fx + 12, right = this.fx + this.fw - 12;
+    if (r.x < left || r.x > right) { r.x = clamp(r.x, left, right); r.vx = 0; }
+    r.tilt = lerp(r.tilt, clamp(r.vx / top, -1, 1) * TILT, 1 - Math.exp(-dt * TILT_RATE));
   }
+  tiltFrame() { return TILTS[clamp(Math.round(this.rocket.tilt / 10), -3, 3) + 3]; }
 
   // ------------------------------------------------------------ spawning
   spawn(dt) {
@@ -166,6 +152,7 @@ export class Game {
       if (t.storm <= 0 && !t.storming) { t.storming = 6; this.popup('METEOR STORM!', this.fx + this.fw / 2, this.vh * 0.3, 'pink', 1.6); }
       if (t.storming) { t.storming = Math.max(0, t.storming - dt); if (!t.storming) t.storm = 35 + this.random() * 15; }
     }
+    if (this.mode === 'over') return;
     t.rock -= dt;
     if (t.rock <= 0) {
       const ramp = clamp(this.time / 150, 0, 1);
@@ -183,12 +170,12 @@ export class Game {
   addRock(ramp, storm) {
     const roll = this.random();
     const size = storm ? (roll < 0.7 ? 's' : 'm') : roll < lerp(0.5, 0.3, ramp) ? 's' : roll < lerp(0.9, 0.68, ramp) ? 'm' : 'l';
-    const pad = { s: 6, m: 9, l: 12 }[size];
+    const pad = ROCKS[size].body;
+    const k = (size === 's' ? 1.15 : size === 'm' ? 1 : 0.85) * (0.85 + this.random() * 0.35) * (storm ? 1.25 : 1);
     this.rocks.push({
       size, neon: NEONS[Math.floor(this.random() * 3)],
       x: this.fx + pad + this.random() * (this.fw - pad * 2), y: -16,
-      vx: (this.random() - 0.5) * 2 * (8 + 30 * ramp) * this.scale,
-      k: (size === 's' ? 1.15 : size === 'm' ? 1 : 0.85) * (0.85 + this.random() * 0.35) * (storm ? 1.25 : 1),
+      vx: (this.random() - 0.5) * 2 * (8 + 30 * ramp) * this.scale, vy: this.speed * this.scale * k, k,
       rot: this.random() * 16, spin: (this.random() < 0.5 ? -1 : 1) * (4 + this.random() * 10),
       grazed: false, doom: null,
     });
@@ -197,11 +184,11 @@ export class Game {
   addShardLine() {
     const n = 5, line = Symbol('line'), shape = Math.floor(this.random() * 3);
     const x0 = this.fx + 16 + this.random() * (this.fw - 32);
-    const slant = (this.random() < 0.5 ? -1 : 1) * 6;
+    const slant = (this.random() < 0.5 ? -1 : 1) * 8;
     for (let i = 0; i < n; i++) {
       let x = x0;
       if (shape === 1) x = x0 + slant * (i - 2);
-      if (shape === 2) x = x0 + Math.sin(i * 1.3) * 10;
+      if (shape === 2) x = x0 + Math.sin(i * 1.3) * 14;
       this.shards.push({ x: clamp(x, this.fx + 8, this.fx + this.fw - 8), y: -12 - i * 15, line, phase: i * 90 });
     }
     this.lineCounts.set(line, n);
@@ -228,19 +215,22 @@ export class Game {
 
   // ------------------------------------------------------------ motion
   move(dt, v) {
+    const settle = 1 - Math.exp(-dt * 1.5);
     for (const rock of this.rocks) {
-      rock.x += rock.vx * dt; rock.y += v * rock.k * dt;
+      rock.vy += (v * rock.k - rock.vy) * settle; // a knocked rock drifts back to the flow
+      rock.x += rock.vx * dt; rock.y += rock.vy * dt;
       rock.rot = (rock.rot + rock.spin * dt + 16) % 16;
       // Rocks bounce off the playfield's sides, so none hides in a margin.
-      const r = ROCKS[rock.size].r;
+      const r = ROCKS[rock.size].body;
       if (rock.x < this.fx + r || rock.x > this.fx + this.fw - r) { rock.vx = -rock.vx; rock.x = clamp(rock.x, this.fx + r, this.fx + this.fw - r); }
     }
+    this.collideRocks();
     const magnet = this.boost > 0;
     for (const s of this.shards) {
       s.y += v * dt;
       if (magnet) {
         const dx = this.rocket.x - s.x, dy = this.rocket.y - s.y, d = Math.hypot(dx, dy);
-        if (d < 70 && d > 0.1) { s.x += dx / d * 160 * dt; s.y += dy / d * 160 * dt; }
+        if (d < 80 && d > 0.1) { s.x += dx / d * 200 * dt; s.y += dy / d * 200 * dt; }
       }
     }
     for (const item of this.items) item.y += v * 0.9 * dt;
@@ -251,11 +241,39 @@ export class Game {
     this.items = this.items.filter(i => i.y < below);
   }
 
-  tick(dt) {
+  // Asteroids knock each other about, as they did in the original: pushed apart where they overlap, and a bounce
+  // that trades momentum along the line between them, so a big rock shoves a small one aside.
+  collideRocks() {
+    const rocks = this.rocks;
+    for (let i = 0; i < rocks.length; i++) for (let j = i + 1; j < rocks.length; j++) {
+      const a = rocks[i], b = rocks[j];
+      if (a.dead || b.dead) continue;
+      const A = ROCKS[a.size], B = ROCKS[b.size], reach = A.body + B.body;
+      const dx = b.x - a.x, dy = b.y - a.y, d2 = dx * dx + dy * dy;
+      if (d2 >= reach * reach || d2 === 0) continue;
+      const d = Math.sqrt(d2), nx = dx / d, ny = dy / d, overlap = reach - d, total = A.mass + B.mass;
+      a.x -= nx * overlap * B.mass / total; a.y -= ny * overlap * B.mass / total;
+      b.x += nx * overlap * A.mass / total; b.y += ny * overlap * A.mass / total;
+      const closing = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
+      if (closing >= 0) continue;
+      const impulse = -1.85 * closing / (1 / A.mass + 1 / B.mass);
+      a.vx -= impulse * nx / A.mass; a.vy -= impulse * ny / A.mass;
+      b.vx += impulse * nx / B.mass; b.vy += impulse * ny / B.mass;
+      a.spin = clamp(a.spin + (this.random() - 0.5) * 8, -16, 16); b.spin = clamp(b.spin - (this.random() - 0.5) * 8, -16, 16);
+      if (a.y > 0 && b.y > 0 && -closing > 25 && this.clock - this.knocked > 90) { this.knocked = this.clock; sfx.knock(Math.min(1, -closing / 120)); }
+    }
+  }
+
+  tick(dt, v) {
     for (const e of this.effects) e.t += dt * 1000;
     this.effects = this.effects.filter(e => e.loop || e.t < e.length);
     for (const p of this.popups) p.t += dt;
     this.popups = this.popups.filter(p => p.t < p.life);
+    for (const p of this.pieces) {
+      p.vy += 300 * this.scale * dt;
+      p.x += p.vx * dt; p.y += (p.vy + v * 0.3) * dt; p.rot += p.spin * dt;
+    }
+    this.pieces = this.pieces.filter(p => p.y < this.vh + 30);
     this.shake = Math.max(0, this.shake - dt * 30);
     this.flash = Math.max(0, this.flash - dt * 3);
     // Rocks marked by a nova shatter as its wave reaches them.
@@ -265,19 +283,19 @@ export class Game {
 
   // ------------------------------------------------------------ collisions
   collide() {
-    const r = this.rocket;
+    const r = this.rocket, hits = HIT.map(([x, y, radius]) => { const [tx, ty] = turn([x, y], r.tilt); return [r.x + tx, r.y + ty, radius]; });
     for (const rock of this.rocks) {
       if (rock.dead) continue;
       const rr = ROCKS[rock.size].r;
       let nearest = Infinity;
-      for (const [hx, hy, hr] of HIT) nearest = Math.min(nearest, Math.hypot(rock.x - (r.x + hx), rock.y - (r.y + hy)) - hr - rr);
+      for (const [hx, hy, hr] of hits) nearest = Math.min(nearest, Math.hypot(rock.x - hx, rock.y - hy) - hr - rr);
       if (nearest < 0) {
         if (this.boost > 0) { this.smash(rock, true); continue; }
         if (this.shield > 0) {
           this.smash(rock, true);
           this.shield = 0; this.invuln = 1.2; r.flash = 0.15;
           this.addEffect('bursts', 'pickup-shield', r.x, r.y, 0);
-          this.popup('SHIELD DOWN', r.x, r.y - 24, 'green');
+          this.popup('SHIELD DOWN', r.x, r.y - 26, 'green');
           sfx.shieldPop(); this.kick(4);
           continue;
         }
@@ -300,7 +318,7 @@ export class Game {
       }
     }
     for (const s of this.shards) {
-      if (s.taken || Math.hypot(s.x - r.x, s.y - r.y) > 10) continue;
+      if (s.taken || Math.hypot(s.x - r.x, s.y - r.y) > 11) continue;
       s.taken = true;
       const gain = Math.round(25 * this.mult * (this.boost > 0 ? 2 : 1));
       this.score += gain; this.mult = Math.min(MULT_MAX, this.mult + 0.02); this.stats.shards++;
@@ -312,12 +330,12 @@ export class Game {
     }
     this.shards = this.shards.filter(s => !s.taken);
     for (const item of this.items) {
-      if (item.taken || Math.hypot(item.x - r.x, item.y - r.y) > 13) continue;
+      if (item.taken || Math.hypot(item.x - r.x, item.y - r.y) > 14) continue;
       item.taken = true; this.stats.powerups++;
       this.addEffect('bursts', `pickup-${item.type}`, item.x, item.y, 0.5);
       sfx.power();
-      if (item.type === 'shield') { this.shield = SHIELD_TIME; this.popup('SHIELD', r.x, r.y - 26, 'green'); }
-      if (item.type === 'boost') { this.boost = BOOST_TIME; this.popup('BOOST', r.x, r.y - 26, 'yellow'); sfx.boost(); }
+      if (item.type === 'shield') { this.shield = SHIELD_TIME; this.popup('SHIELD', r.x, r.y - 28, 'green'); }
+      if (item.type === 'boost') { this.boost = BOOST_TIME; this.popup('BOOST', r.x, r.y - 28, 'yellow'); sfx.boost(); }
       if (item.type === 'nova') this.nova();
     }
     this.items = this.items.filter(i => !i.taken);
@@ -336,7 +354,7 @@ export class Game {
   nova() {
     const r = this.rocket;
     this.addEffect('nova', 'nova', r.x, r.y, 0);
-    this.popup('NOVA', r.x, r.y - 26, 'pink');
+    this.popup('NOVA', r.x, r.y - 28, 'pink');
     sfx.nova(); this.kick(5); this.flash = Math.max(this.flash, 0.5);
     // The wave travels outward; each rock on screen shatters as it arrives.
     for (const rock of this.rocks) {
@@ -345,10 +363,18 @@ export class Game {
     }
   }
 
+  // The rocket breaks apart, as in the original: nose, cockpit, tail and both fins fly off spinning, arc up and fall.
   crash() {
-    const r = this.rocket;
+    const r = this.rocket, s = this.scale;
     this.mode = 'dying'; this.dyingFor = 0;
     this.addEffect('boom', 'boom', r.x, r.y, 0.25);
+    const launch = { nose: [0, -240], cockpit: [0, -205], tail: [0, -165], 'fin-l': [-140, -180], 'fin-r': [140, -180] };
+    this.pieces = Object.entries(PIECES).map(([piece, offset]) => {
+      const [ox, oy] = turn(offset, r.tilt), [lx, ly] = launch[piece];
+      return { piece, x: r.x + ox, y: r.y + oy, rot: r.tilt,
+        vx: (lx + (this.random() - 0.5) * 70 + r.vx * 0.35) * s, vy: (ly - this.random() * 40) * s,
+        spin: (this.random() < 0.5 ? -1 : 1) * (200 + this.random() * 360) };
+    });
     sfx.boom(); this.kick(10); this.flash = 1;
     this.shield = 0; this.boost = 0;
     if (this.score > this.best) { this.best = Math.floor(this.score); this.newBest = true; }
@@ -368,7 +394,7 @@ export class Game {
   kick(amount) { if (!this.reducedMotion) this.shake = Math.max(this.shake, amount); }
 
   // ------------------------------------------------------------ drawing
-  render(ctx) {
+  render(ctx, input) {
     const { vw, vh } = this, ms = this.clock;
     ctx.imageSmoothingEnabled = false;
     ctx.fillStyle = BG; ctx.fillRect(0, 0, vw, vh);
@@ -393,21 +419,23 @@ export class Game {
       const blink = this.invuln > 0 && Math.floor(ms / 70) % 2;
       if (!blink) {
         if (this.boost > 0) this.speedLines(ctx, ms);
-        this.exhaust.draw(ctx, r.x, r.y + 12, ms);
-        const b = Math.round(r.bank);
-        const frame = r.flash > 0 ? 'flash' : ['bank-l2', 'bank-l1', 'center', 'bank-r1', 'bank-r2'][b + 2];
-        draw(ctx, 'rocket', frame, r.x, r.y);
+        const frame = this.tiltFrame(), entry = sheets.rocket.atlas.frames[frame];
+        // The exhaust leaves from the tilted frame's own nozzle point, along the rocket's axis.
+        const nx = r.x + entry.points.nozzle.x - entry.anchor.x, ny = r.y + entry.points.nozzle.y - entry.anchor.y;
+        this.exhaust.draw(ctx, nx, ny, ms, r.tilt * Math.PI / 180);
+        draw(ctx, 'rocket', r.flash > 0 ? 'flash' : frame, r.x, r.y);
       }
       if (this.shield > 0 && !(this.shield < 2 && Math.floor(ms / 110) % 2)) draw(ctx, 'shield', frameOf('shield', 'shield', ms), r.x, r.y);
     }
     for (const e of this.effects) draw(ctx, e.sheet, frameOf(e.sheet, e.animation, e.t), e.x, e.y);
+    for (const p of this.pieces) draw(ctx, 'rocket', `${p.piece}-${(((Math.round(p.rot / 22.5)) % 16) + 16) % 16}`, p.x, p.y);
     for (const p of this.popups) {
       if (p.t > p.life * 0.75 && Math.floor(p.t * 20) % 2) continue;
       drawText(ctx, p.text, p.x, Math.round(p.y - p.t * 16), { ink: p.ink, align: 'center' });
     }
     ctx.restore();
 
-    if (this.mode !== 'title') this.hud(ctx);
+    if (this.mode !== 'title') this.hud(ctx, input);
     if (this.flash > 0 && !this.reducedMotion) {
       ctx.fillStyle = `rgba(255,255,255,${(this.flash * 0.35).toFixed(3)})`;
       ctx.fillRect(0, 0, vw, vh);
@@ -434,15 +462,15 @@ export class Game {
 
   speedLines(ctx, ms) {
     ctx.fillStyle = 'rgba(201,254,255,0.55)';
-    for (let i = 0; i < 14; i++) {
+    for (let i = 0; i < 18; i++) {
       const x = this.fx + ((i * 73 + 17) % this.fw), len = 6 + (i * 5) % 10;
       const y = ((ms * (0.6 + (i % 4) * 0.15) + i * 97) % (this.vh + 40)) - 20;
       ctx.fillRect(x, Math.round(y), 1, len);
     }
   }
 
-  hud(ctx) {
-    const { fx, fw } = this, top = 4 + this.insets.top;
+  hud(ctx, input) {
+    const { fx, fw, vh } = this, top = 4 + this.insets.top;
     const side = fx >= 64;                         // room beside the lane on wide screens
     const x = side ? fx - 10 : fx + 5, align = side ? 'right' : 'left';
     drawText(ctx, formatScore(this.score), x, top, { align });
@@ -459,15 +487,20 @@ export class Game {
       ctx.fillStyle = color; ctx.fillRect(left, y + 9, Math.ceil(w * share), 2);
       y += 14;
     }
-    if (!side && this.time < 4 && this.mode === 'playing' && Math.floor(this.clock / 400) % 3) {
-      drawText(ctx, this.touch ? 'DRAG ANYWHERE TO STEER' : 'ARROWS, WASD OR MOUSE', fx + fw / 2, Math.round(this.vh * 0.58), { ink: 'cyan', align: 'center' });
-    }
-    if (side && this.time < 8 && this.mode === 'playing') {
+    if (this.mode !== 'playing') return;
+    if (this.touch) {
+      // Touch: the two halves of the screen are the controls; their arrows light while held.
+      const held = input?.held() ?? { left: false, right: false }, by = vh - 16 - this.insets.bottom;
+      drawText(ctx, '<', fx + 8, by, { ink: held.left ? 'cyan' : 'white' });
+      drawText(ctx, '>', fx + fw - 8, by, { ink: held.right ? 'cyan' : 'white', align: 'right' });
+      if (this.time < 4 && Math.floor(this.clock / 400) % 3) drawText(ctx, 'HOLD LEFT OR RIGHT', fx + fw / 2, Math.round(vh * 0.55), { ink: 'cyan', align: 'center' });
+    } else if (side && this.time < 8) {
       const hx = fx + fw + 10;
-      drawText(ctx, 'ARROWS WASD', hx, top, { ink: 'white' });
-      drawText(ctx, 'OR MOUSE', hx, top + 11, { ink: 'white' });
-      drawText(ctx, 'P PAUSE', hx, top + 26, { ink: 'cyan' });
-      drawText(ctx, 'M SOUND', hx, top + 37, { ink: 'cyan' });
+      drawText(ctx, 'ARROWS OR A D', hx, top, { ink: 'white' });
+      drawText(ctx, 'P PAUSE', hx, top + 15, { ink: 'cyan' });
+      drawText(ctx, 'M SOUND', hx, top + 26, { ink: 'cyan' });
+    } else if (!side && this.time < 4 && Math.floor(this.clock / 400) % 3) {
+      drawText(ctx, 'ARROWS OR A D', fx + fw / 2, Math.round(vh * 0.55), { ink: 'cyan', align: 'center' });
     }
   }
 }

@@ -1,0 +1,362 @@
+{
+ "format": "pixelforge-poses",
+ "version": 1,
+ "name": "rocket",
+ "width": 36,
+ "height": 36,
+ "palette": {
+  "$ref": "palette.json"
+ },
+ "parts": {
+  "bank-l2": {
+   "rows": [
+    "...........k...........",
+    "..........kmk..........",
+    "..........kmk..........",
+    ".........kmMMk.........",
+    ".........kmMMk.........",
+    "........kmMMMMk........",
+    "........kHHhhhk........",
+    ".......khHHhhhhk.......",
+    ".......khqqqhhhk.......",
+    ".......khWcqhhhk.......",
+    ".......khcCqhhhk.......",
+    ".......khqqqhhhk.......",
+    ".......khHHhhhhk.......",
+    ".......kmmMMMMMk.......",
+    ".......khHHhhhhk.......",
+    ".......khHHhhhhmk......",
+    "......knhHHhhhhmmk.....",
+    "......knhHHhhhhmMmk....",
+    ".....knnhHHhhhhmMMmk...",
+    ".....knnhHHhhhhmMMmk...",
+    "....knmkkhhhhhkkMMMmk..",
+    "....kmk.khhhhhk.kMMMk..",
+    "....kk..kqcccqk..kkkk..",
+    "........kcwWwck........",
+    ".........kkkkk........."
+   ],
+   "anchor": [
+    11,
+    12
+   ],
+   "points": {
+    "nozzle": [
+     11,
+     24
+    ]
+   }
+  },
+  "bank-l1": {
+   "rows": [
+    "...........k...........",
+    "..........kmk..........",
+    "..........kmk..........",
+    ".........kmMMk.........",
+    ".........kmMMk.........",
+    "........knmMMMk........",
+    "........ksHHhhk........",
+    ".......kHsHHhhhk.......",
+    ".......kHqqqhhhk.......",
+    ".......kHWcqhhhk.......",
+    ".......kHcCqhhhk.......",
+    ".......kHqqqhhhk.......",
+    ".......kHsHHhhhk.......",
+    ".......knmmMMMMk.......",
+    ".......kHsHHhhhk.......",
+    "......knHsHHhhhmk......",
+    "......knHsHHhhhmmk.....",
+    ".....knnHsHHhhhmMmk....",
+    "....knmnHsHHhhhmMMmk...",
+    "....knmnHsHHhhhmMMmk...",
+    "...knmmkkhhhhhkkMMMmk..",
+    "...kmmk.khhhhhk.kMMMk..",
+    "...kkk..kqcccqk..kkkk..",
+    "........kcwWwck........",
+    ".........kkkkk........."
+   ],
+   "anchor": [
+    11,
+    12
+   ],
+   "points": {
+    "nozzle": [
+     11,
+     24
+    ]
+   }
+  },
+  "center": {
+   "rows": [
+    "...........k...........",
+    "..........knk..........",
+    "..........knk..........",
+    ".........knmMk.........",
+    ".........knmMk.........",
+    "........knmmMMk........",
+    "........kssHHhk........",
+    ".......kHssHHhhk.......",
+    ".......kHsqqqhhk.......",
+    ".......kHsWcqhhk.......",
+    ".......kHscCqhhk.......",
+    ".......kHsqqqhhk.......",
+    ".......kHssHHhhk.......",
+    ".......knmmmMMMk.......",
+    ".......kHssHHhhk.......",
+    "......knHssHHhhmk......",
+    ".....knnHssHHhhmmk.....",
+    "....knmnHssHHhhmMmk....",
+    "...knmmnHssHHhhmMMmk...",
+    "...knmmnHssHHhhmMMmk...",
+    "..knmmmkkhhhhhkkMMMmk..",
+    "..kmmmk.khhhhhk.kMMMk..",
+    "..kkkk..kqcccqk..kkkk..",
+    "........kcwWwck........",
+    ".........kkkkk........."
+   ],
+   "anchor": [
+    11,
+    12
+   ],
+   "points": {
+    "nozzle": [
+     11,
+     24
+    ]
+   }
+  },
+  "bank-r1": {
+   "rows": [
+    "...........k...........",
+    "..........knk..........",
+    "..........knk..........",
+    ".........knnMk.........",
+    ".........knnMk.........",
+    "........knnmmMk........",
+    "........ksssHHk........",
+    ".......kHsssHHhk.......",
+    ".......kHssqqqhk.......",
+    ".......kHssWcqhk.......",
+    ".......kHsscCqhk.......",
+    ".......kHssqqqhk.......",
+    ".......kHsssHHhk.......",
+    ".......knnmmmMMk.......",
+    ".......kHsssHHhk.......",
+    "......knHsssHHhmk......",
+    ".....knnHsssHHhmk......",
+    "....knmnHsssHHhmmk.....",
+    "...knmmnHsssHHhmMmk....",
+    "...knmmnHsssHHhmMmk....",
+    "..knmmmkkhhhhhkkMMmk...",
+    "..kmmmk.khhhhhk.kMMk...",
+    "..kkkk..kqcccqk..kkk...",
+    "........kcwWwck........",
+    ".........kkkkk........."
+   ],
+   "anchor": [
+    11,
+    12
+   ],
+   "points": {
+    "nozzle": [
+     11,
+     24
+    ]
+   }
+  },
+  "bank-r2": {
+   "rows": [
+    "...........k...........",
+    "..........knk..........",
+    "..........knk..........",
+    ".........knnmk.........",
+    ".........knnmk.........",
+    "........knnnmMk........",
+    "........kssHHHk........",
+    ".......ksssHHHhk.......",
+    ".......ksssqqqhk.......",
+    ".......ksssWcqhk.......",
+    ".......kssscCqhk.......",
+    ".......ksssqqqhk.......",
+    ".......ksssHHHhk.......",
+    ".......knnnmmmMk.......",
+    ".......ksssHHHhk.......",
+    "......knsssHHHhk.......",
+    ".....knnsssHHHhmk......",
+    "....knmnsssHHHhmk......",
+    "...knmmnsssHHHhmmk.....",
+    "...knmmnsssHHHhmmk.....",
+    "..knmmmkkhhhhhkkMmk....",
+    "..kmmmk.khhhhhk.kMk....",
+    "..kkkk..kqcccqk..kk....",
+    "........kcwWwck........",
+    ".........kkkkk........."
+   ],
+   "anchor": [
+    11,
+    12
+   ],
+   "points": {
+    "nozzle": [
+     11,
+     24
+    ]
+   }
+  }
+ },
+ "poses": [
+  {
+   "name": "tilt-l30",
+   "duration": 100,
+   "origin": [
+    18,
+    18
+   ],
+   "parts": [
+    {
+     "name": "ship",
+     "part": "bank-l2",
+     "rotate": -30
+    }
+   ],
+   "markers": [
+    {
+     "name": "nozzle",
+     "part": "ship",
+     "point": "nozzle"
+    }
+   ]
+  },
+  {
+   "name": "tilt-l20",
+   "duration": 100,
+   "origin": [
+    18,
+    18
+   ],
+   "parts": [
+    {
+     "name": "ship",
+     "part": "bank-l1",
+     "rotate": -20
+    }
+   ],
+   "markers": [
+    {
+     "name": "nozzle",
+     "part": "ship",
+     "point": "nozzle"
+    }
+   ]
+  },
+  {
+   "name": "tilt-l10",
+   "duration": 100,
+   "origin": [
+    18,
+    18
+   ],
+   "parts": [
+    {
+     "name": "ship",
+     "part": "bank-l1",
+     "rotate": -10
+    }
+   ],
+   "markers": [
+    {
+     "name": "nozzle",
+     "part": "ship",
+     "point": "nozzle"
+    }
+   ]
+  },
+  {
+   "name": "tilt-0",
+   "duration": 100,
+   "origin": [
+    18,
+    18
+   ],
+   "parts": [
+    {
+     "name": "ship",
+     "part": "center"
+    }
+   ],
+   "markers": [
+    {
+     "name": "nozzle",
+     "part": "ship",
+     "point": "nozzle"
+    }
+   ]
+  },
+  {
+   "name": "tilt-r10",
+   "duration": 100,
+   "origin": [
+    18,
+    18
+   ],
+   "parts": [
+    {
+     "name": "ship",
+     "part": "bank-r1",
+     "rotate": 10
+    }
+   ],
+   "markers": [
+    {
+     "name": "nozzle",
+     "part": "ship",
+     "point": "nozzle"
+    }
+   ]
+  },
+  {
+   "name": "tilt-r20",
+   "duration": 100,
+   "origin": [
+    18,
+    18
+   ],
+   "parts": [
+    {
+     "name": "ship",
+     "part": "bank-r1",
+     "rotate": 20
+    }
+   ],
+   "markers": [
+    {
+     "name": "nozzle",
+     "part": "ship",
+     "point": "nozzle"
+    }
+   ]
+  },
+  {
+   "name": "tilt-r30",
+   "duration": 100,
+   "origin": [
+    18,
+    18
+   ],
+   "parts": [
+    {
+     "name": "ship",
+     "part": "bank-r2",
+     "rotate": 30
+    }
+   ],
+   "markers": [
+    {
+     "name": "nozzle",
+     "part": "ship",
+     "point": "nozzle"
+    }
+   ]
+  }
+ ]
+}

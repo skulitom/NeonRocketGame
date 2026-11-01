@@ -88,6 +88,7 @@ export const sfx = {
     tone({ type: 'square', from: 300, to: 40, time: 0.4, gain: 0.15 });
   },
   click() { if (ready()) tone({ type: 'square', from: 660, time: 0.04, gain: 0.08 }); },
+  knock(strength = 0.5) { if (ready()) { hiss({ time: 0.08, gain: 0.12 * strength, from: 1400, to: 300, type: 'bandpass', q: 2 }); tone({ type: 'triangle', from: 150, to: 70, time: 0.09, gain: 0.18 * strength }); } },
 };
 
 // ---------------------------------------------------------------- music

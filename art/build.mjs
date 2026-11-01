@@ -42,9 +42,38 @@ async function emit(recipe, name = recipe.name) {
 }
 
 // ---------------------------------------------------------------- rocket
-async function rocket() {
-  await emit(await load('rocket.json'));
+// rocket.poses.json holds the ship's three roll frames and turns them through the tilt angles with RotSprite; each
+// tilted frame carries the turned nozzle point, so the exhaust leaves from the right pixel. When the ship is hit it
+// breaks into the pieces cut below from its centre frame, each spun through 16 angles, also by RotSprite.
+const PIECES = {          // [first row, last row, first column, last column] of the centre frame
+  nose: [0, 5, 8, 14],
+  cockpit: [6, 13, 7, 15],
+  tail: [14, 24, 8, 14],
+  'fin-l': [14, 22, 2, 7],
+  'fin-r': [14, 22, 15, 20],
+};
+async function rocketRecipe() {
+  const source = await load('rocket.poses.json');
+  const center = source.parts.center.rows;
+  const parts = { ...source.parts }, poses = [...source.poses], animations = {};
+  for (const [piece, [r0, r1, c0, c1]] of Object.entries(PIECES)) {
+    const rows = center.slice(r0, r1 + 1).map(row => row.slice(c0, c1 + 1));
+    parts[piece] = { rows, anchor: [Math.floor(rows[0].length / 2), Math.floor(rows.length / 2)] };
+    const names = [];
+    for (let i = 0; i < 16; i++) {
+      const name = `${piece}-${i}`, angle = Math.round(i * 22.5);
+      names.push(name);
+      poses.push({ name, duration: 50, origin: [18, 18], parts: [{ name: 'piece', part: piece, ...(angle && { rotate: angle }) }] });
+    }
+    animations[`spin-${piece}`] = { frames: names };
+  }
+  const { recipe, warnings = [] } = pb.compilePoses({ ...source, parts, poses });
+  for (const warning of warnings) console.warn(`rocket: ${warning}`);
+  const flash = { name: 'flash', duration: 60, points: recipe.frames.find(f => f.name === 'tilt-0').points,
+    ops: [{ op: 'copy', from: 'tilt-0', remap: { s: 'W', H: 'w', h: 'c', n: 'W', m: 'w', M: 'c', q: 'c', C: 'w', c: 'W' } }] };
+  return { ...recipe, frames: [...recipe.frames, flash], animations: { ...animations, hit: { frames: ['flash', 'tilt-0', 'flash', 'tilt-0'], loop: false } } };
 }
+const rocket = async () => emit(await rocketRecipe());
 
 // ---------------------------------------------------------------- rocks
 // RotSprite turns each rock body through 16 angles (the poses source). The light stays put: after rotation every frame
@@ -146,7 +175,7 @@ const logo = async () => emit(await load('logo.json'));
 // ---------------------------------------------------------------- font
 // Every letter the canvas draws is Pixelbolt's built-in font: one frame per glyph with a dark edge, its advance as a
 // point, and colour variants copied with a remap.
-const GLYPHS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZx.,:!?+-%/'";
+const GLYPHS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZx.,:!?+-%/'<>";
 const INKS = { white: 'W', yellow: 'y', cyan: 'c', pink: 'n', green: 'l' };
 async function font() {
   const { document: base } = await pb.resolveReferences({ palette: { $ref: 'palette.json' } }, { baseDir: ART });
@@ -166,7 +195,7 @@ async function font() {
 // ---------------------------------------------------------------- icons
 // The rocket's own grid on a round badge (favicon) and on a full square (home-screen icons, which the system rounds).
 async function icons() {
-  const rocketSource = await load('rocket.json');
+  const rocketSource = await load('rocket.poses.json');
   const flame = ['cWc', '.c.', '.C.'];
   const draw = (size, round) => {
     const ox = Math.floor((size - 23) / 2), oy = Math.floor((size - 28) / 2);
@@ -178,7 +207,7 @@ async function icons() {
     ];
   };
   const icon = (name, size, round) => ({ version: 1, name, width: size, height: size, palette: rocketSource.palette,
-    symbols: { rocket: rocketSource.symbols.center }, frames: [{ name, ops: draw(size, round) }] });
+    symbols: { rocket: rocketSource.parts.center.rows }, frames: [{ name, ops: draw(size, round) }] });
   const out = [['favicon', 32, true, 1], ['icon-192', 32, false, 6], ['icon-512', 32, false, 16], ['apple-touch-icon', 36, false, 5]];
   for (const [name, size, round, scale] of out) {
     const project = pb.renderProject(icon(name, size, round));
@@ -195,6 +224,11 @@ async function card() {
   // The rocks as the game has them (lit after rotation, three neons) come from the rocks build; inline them here.
   document.assets.rocks = await rockRecipe();
   document.assets.exhaust = await bakeExhaust();
+  document.assets.rocket = await rocketRecipe();
+  // The plume hangs from the tilted frame's own nozzle point.
+  const ship = document.instances.find(i => i.name === 'rocket'), plume = document.instances.find(i => i.name === 'exhaust');
+  const nozzle = document.assets.rocket.frames.find(f => f.name === ship.frame).points.nozzle, [ax, ay] = document.assets.rocket.anchor;
+  plume.at = [ship.at[0] + nozzle[0] - ax, ship.at[1] + nozzle[1] - ay];
   document.assets.tagline = { version: 1, name: 'tagline', width: 100, height: 12, palette: { W: '#ffffff', k: '#140f2b', c: '#62f4f8' },
     frames: [{ name: 'tagline', ops: [{ op: 'text', x: 50, y: 2, text: 'FREE BROWSER GAME', color: 'c', align: 'center' }, { op: 'outline', color: 'k' }] }] };
   const scene = pb.prepareScene(document);
@@ -257,10 +291,10 @@ async function media() {
     await save(`${type}.gif`, data, `${width}x${height}`);
   }
 
-  const rocket = pb.renderProject(await load('rocket.json'));
-  const banks = ['bank-l2', 'bank-l1', 'center', 'bank-r1', 'bank-r2'];
-  const strip = canvas(banks.length * 27 + 4, 29);
-  banks.forEach((name, i) => blit(strip, rocket, name, 4 + i * 27, 2));
+  const rocket = pb.renderProject(await rocketRecipe());
+  const tilts = ['tilt-l30', 'tilt-l20', 'tilt-l10', 'tilt-0', 'tilt-r10', 'tilt-r20', 'tilt-r30'];
+  const strip = canvas(tilts.length * 32, 34);
+  tilts.forEach((name, i) => blit(strip, rocket, name, i * 32 - 2, -1));
   await save('rocket.png', pb.encodePNG(pb.scalePixels(strip.data, strip.width, strip.height, 3), strip.width * 3, strip.height * 3), `${strip.width * 3}x${strip.height * 3}`);
 
   const rocksProject = pb.renderProject(await rockRecipe());
@@ -277,7 +311,7 @@ async function media() {
   const flight = plume.animations.down.frames.map(index => {
     const frame = canvas(30, 76);
     blit(frame, plume, plume.frames[index].name, 15 - 10, 26);
-    blit(frame, rocket, 'center', 15 - 11, 2);
+    blit(frame, rocket, 'tilt-0', 15 - 18, 2 - 6);
     return { data: frame.data, duration: plume.frames[index].duration };
   });
   await gif('exhaust.gif', flight, 30, 76, 3);

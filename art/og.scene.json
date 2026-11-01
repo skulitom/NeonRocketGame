@@ -8,7 +8,6 @@
  "assets": {
   "stars": "stars.json",
   "space": "space.json",
-  "rocket": "rocket.json",
   "items": "items.json",
   "logo": "logo.json"
  },
@@ -27,7 +26,7 @@
   { "name": "shard-3", "asset": "items", "frame": "shard-2", "anchor": "frame", "at": [130, 36] },
   { "name": "shield", "asset": "items", "frame": "shield-1", "anchor": "frame", "at": [118, 70] },
   { "name": "exhaust", "asset": "exhaust", "frame": "down-14", "anchor": "frame", "at": [165, 89] },
-  { "name": "rocket", "asset": "rocket", "frame": "bank-r1", "anchor": "frame", "at": [165, 77] },
+  { "name": "rocket", "asset": "rocket", "frame": "tilt-r10", "anchor": "frame", "at": [165, 77] },
   { "name": "logo", "asset": "logo", "frame": "logo", "at": [8, 30] },
   { "name": "tagline", "asset": "tagline", "frame": "tagline", "at": [8, 80] }
  ]

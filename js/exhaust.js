@@ -35,28 +35,34 @@ export class Exhaust {
     }
   }
 
-  /** One simulation frame. vx, vy: the rocket's velocity in game pixels per second. */
-  step(vx, vy, boosting) {
+  /** One simulation frame. vx: the rocket's speed in game pixels per second; thrust: how hard the jet burns (0 idles). */
+  step(vx, thrust) {
     const live = this.live;
     if (!live) return;
-    const clamp = v => Math.max(-2.2, Math.min(2.2, v));
-    const px = clamp(-vx / 30 * PUSH), py = clamp(vy / 30 * PUSH); // screen y is the simulation's -y
-    if (Math.abs(px) + Math.abs(py) > 0.04) live.push({ x: STIR.x, y: STIR.y, vx: px, vy: py, radius: STIR.radius });
-    if (boosting) live.boost('jet', 2.6, 2);
+    const px = Math.max(-2.2, Math.min(2.2, -vx / 30 * PUSH));
+    if (Math.abs(px) > 0.04) live.push({ x: STIR.x, y: STIR.y, vx: px, vy: 0, radius: STIR.radius });
+    if (thrust) live.boost('jet', thrust, 2);
     live.step();
     this.dirty = true;
   }
 
-  /** Draws the plume with its top at (x, y): the nozzle. */
-  draw(ctx, x, y, ms) {
-    if (!this.live) { draw(ctx, 'exhaust', frameOf('exhaust', 'down', ms), x, y); return; }
+  /** Draws the plume from the nozzle at (x, y), along the rocket's axis turned by `angle` radians. */
+  draw(ctx, x, y, ms, angle = 0) {
+    if (!this.live) {
+      ctx.save(); ctx.translate(Math.round(x), Math.round(y)); ctx.rotate(angle);
+      draw(ctx, 'exhaust', frameOf('exhaust', 'down', ms), 0, 0);
+      ctx.restore();
+      return;
+    }
     if (this.dirty) {
       this.image.data.set(this.live.render().rgba);
       this.ctx.putImageData(this.image, 0, 0);
       this.dirty = false;
     }
     ctx.save();
-    ctx.translate(Math.round(x) - 10, Math.round(y) + this.canvas.height);
+    ctx.translate(Math.round(x), Math.round(y));
+    ctx.rotate(angle);
+    ctx.translate(-10, this.canvas.height);
     ctx.scale(1, -1);
     ctx.drawImage(this.canvas, 0, 0);
     ctx.restore();

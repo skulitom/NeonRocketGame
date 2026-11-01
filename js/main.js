@@ -20,7 +20,9 @@ const exhaust = new Exhaust();
 
 // ---------------------------------------------------------------- scaling
 // The game draws at a small size and the canvas is enlarged by a whole number of device pixels, so every art pixel
-// is the same size on screen. About 240 game pixels fill the height; narrow phones are limited by width instead.
+// is the same size on screen. About 450 game pixels fill the height (300 to 900), so the ship is small against
+// the field;
+// narrow phones are limited by width instead (at least 240 game pixels across).
 const probe = document.createElement('div');
 probe.style.cssText = 'position:fixed;inset:0;pointer-events:none;visibility:hidden;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)';
 document.body.append(probe);
@@ -30,7 +32,7 @@ function resize() {
   // A minimised window or a rotation in progress can report no size at all; keep the last good one.
   if (rect.width < 60 || rect.height < 60) return;
   const W = Math.round(rect.width * dpr), H = Math.round(rect.height * dpr);
-  const s = Math.max(1, Math.min(Math.floor(H / 240), Math.floor(W / 180)));
+  const s = Math.max(1, Math.min(Math.round(H / 450), Math.floor(W / 240)));
   const vw = Math.max(1, Math.floor(W / s)), vh = Math.max(1, Math.floor(H / s));
   if (canvas.width !== vw || canvas.height !== vh) { canvas.width = vw; canvas.height = vh; }
   const cssPerGame = s / dpr;
@@ -43,12 +45,6 @@ function resize() {
   const inset = v => Math.ceil((parseFloat(v) || 0) / cssPerGame);
   game?.resize(vw, vh, { top: inset(style.paddingTop), bottom: inset(style.paddingBottom) });
 }
-
-function toGame(clientX, clientY) {
-  const rect = canvas.getBoundingClientRect();
-  return [(clientX - rect.left) / view.cssPerGame, (clientY - rect.top) / view.cssPerGame];
-}
-Object.defineProperty(toGame, 'scale', { get: () => 1 / view.cssPerGame });
 
 // ---------------------------------------------------------------- menus
 function show(name) {
@@ -63,7 +59,6 @@ function startGame() {
   if (settings.music) audio.startMusic();
   exhaust.start();
   game.best = store.readBest();
-  input.takeDrag(); // a finger left down since the crash must not jolt the new rocket
   game.start();
   show(null);
   if (stage.getBoundingClientRect().top !== 0) stage.scrollIntoView({ block: 'start' });
@@ -80,7 +75,6 @@ function pause() {
 function resume() {
   if (game?.mode !== 'paused') return;
   game.mode = 'playing';
-  input.takeDrag();
   audio.resume();
   show(null);
   canvas.focus({ preventScroll: true });
@@ -111,10 +105,11 @@ function gameOver(summary) {
   $('statGrazes').textContent = summary.grazes;
   $('statSmashed').textContent = summary.smashed;
   show('over');
-  confirmAfter = performance.now() + 700; // a key still held from the crash doesn't restart at once
+  confirmAfter = performance.now() + 250; // a key hit at the moment of the crash doesn't count
   $('againBtn').focus({ preventScroll: true });
 }
 
+// Any fresh key press (or a tap on the screen) plays: from the title, after a game over, or to resume.
 function confirm() {
   if (!game) return false;
   if (game.mode === 'title') { startGame(); return true; }
@@ -169,7 +164,7 @@ function step() {
     if (button === 0) confirm();
     if (button === 9) togglePause();
   }
-  game.update(STEP, input, toGame);
+  game.update(STEP, input);
 }
 function frame(now) {
   const dt = Math.min(0.1, (now - last) / 1000);
@@ -179,7 +174,7 @@ function frame(now) {
     let n = 0;
     while (accumulator >= STEP && n < 8) { step(); accumulator -= STEP; n++; }
     if (n === 8) accumulator = 0;
-    game.render(ctx);
+    game.render(ctx, input);
   }
   requestAnimationFrame(frame);
 }
@@ -195,7 +190,7 @@ async function boot() {
     return;
   }
   game = new Game({ exhaust, onGameOver: gameOver, reducedMotion: reducedMotion.matches });
-  input = new Input(stage, { onPause: togglePause, onMute: () => setSound(!settings.sound), onConfirm: confirm, isPlaying: () => game.mode === 'playing' });
+  input = new Input(stage, { onPause: togglePause, onMute: () => setSound(!settings.sound), onAnyKey: confirm, isPlaying: () => game.mode === 'playing' });
   game.best = store.readBest();
   game.touch = coarse.matches;
   resize();
@@ -215,7 +210,9 @@ addEventListener('blur', pause);
 new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; if (!visible) pause(); }).observe(stage);
 
 $('playBtn').addEventListener('click', startGame);
-$('againBtn').addEventListener('click', () => { if (performance.now() > confirmAfter - 400) startGame(); });
+$('againBtn').addEventListener('click', startGame);
+// A tap anywhere on the title or game-over screen that isn't a button or link plays.
+for (const overlay of [overlays.title, overlays.over]) overlay.addEventListener('click', e => { if (!e.target.closest('button, a')) confirm(); });
 $('resumeBtn').addEventListener('click', resume);
 $('quitBtn').addEventListener('click', toTitle);
 $('menuBtn').addEventListener('click', toTitle);
@@ -249,7 +246,7 @@ setMusic(settings.music);
 function exposeForTests() {
   window.neonVoyage = {
     get game() { return game; }, input, exhaust, startGame, pause, resume, toTitle,
-    advance(ms) { for (let t = 0; t < ms; t += STEP * 1000) step(); game.render(ctx); return game.mode; },
+    advance(ms) { for (let t = 0; t < ms; t += STEP * 1000) step(); game.render(ctx, input); return game.mode; },
     frame: () => canvas.toDataURL('image/png'),
   };
 }
