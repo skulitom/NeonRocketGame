@@ -1,0 +1,325 @@
+{
+ "format": "pixelforge-fx",
+ "version": 1,
+ "name": "boom",
+ "width": 88,
+ "height": 88,
+ "palette": {
+  "$ref": "palette.json"
+ },
+ "symbols": {
+  "chip-hull": [
+   "sH",
+   "Hh"
+  ],
+  "chip-hull-big": [
+   ".sH",
+   "sHh",
+   "Hhh"
+  ],
+  "chip-panel": [
+   ".sH.",
+   "sHHh",
+   ".hh."
+  ],
+  "chip-fin": [
+   "n.",
+   "nm",
+   "mM"
+  ],
+  "chip-nose": [
+   ".n",
+   "nm"
+  ],
+  "chip-glass": [
+   "w",
+   "c"
+  ],
+  "ember": [
+   "y"
+  ],
+  "ember-hot": [
+   "W"
+  ],
+  "ember-dim": [
+   "o"
+  ],
+  "ember-pink": [
+   "m"
+  ]
+ },
+ "effects": {
+  "boom": {
+   "frames": 24,
+   "duration": {
+    "from": 40,
+    "to": 95,
+    "ease": "in"
+   },
+   "seed": 5,
+   "looks": {
+    "flash": {
+     "colors": [
+      "o",
+      "y",
+      "Y",
+      "W"
+     ],
+     "thresholds": [
+      0.2,
+      0.45,
+      0.7,
+      0.9
+     ]
+    },
+    "fire": {
+     "colors": [
+      "M",
+      "m",
+      "o",
+      "y",
+      "W"
+     ],
+     "thresholds": [
+      0.15,
+      0.3,
+      0.48,
+      0.68,
+      0.88
+     ],
+     "dither": 0.3
+    },
+    "plasma": {
+     "colors": [
+      "q",
+      "C",
+      "c",
+      "w"
+     ],
+     "thresholds": [
+      0.2,
+      0.45,
+      0.7,
+      0.9
+     ]
+    },
+    "pink": {
+     "colors": [
+      "M",
+      "m",
+      "n"
+     ],
+     "thresholds": [
+      0.25,
+      0.5,
+      0.8
+     ]
+    }
+   },
+   "cleanup": {
+    "corners": true,
+    "strays": true
+   },
+   "layers": [
+    {
+     "kind": "star",
+     "look": "flash",
+     "at": [
+      44,
+      44
+     ],
+     "frames": [
+      0,
+      3
+     ],
+     "radius": [
+      30,
+      12
+     ],
+     "points": 8,
+     "width": [
+      4,
+      2
+     ],
+     "ratio": 0.45,
+     "power": 1.3,
+     "cue": "boom"
+    },
+    {
+     "kind": "burst",
+     "look": "fire",
+     "at": [
+      44,
+      44
+     ],
+     "frames": [
+      0,
+      15
+     ],
+     "radius": [
+      9,
+      23,
+      27
+     ],
+     "noise": 0.7,
+     "scale": 5,
+     "power": [
+      1.8,
+      1.4,
+      0.9,
+      0.3
+     ],
+     "hole": [
+      0,
+      0,
+      0.3,
+      0.7
+     ]
+    },
+    {
+     "kind": "ring",
+     "look": "plasma",
+     "at": [
+      44,
+      44
+     ],
+     "frames": [
+      1,
+      11
+     ],
+     "radius": [
+      8,
+      42
+     ],
+     "width": [
+      6,
+      3,
+      2
+     ],
+     "noise": 0.6,
+     "scale": 5,
+     "power": [
+      1.3,
+      0.9,
+      0.3
+     ]
+    },
+    {
+     "kind": "ring",
+     "look": "pink",
+     "at": [
+      44,
+      44
+     ],
+     "frames": [
+      4,
+      15
+     ],
+     "radius": [
+      6,
+      32
+     ],
+     "width": [
+      4,
+      2
+     ],
+     "noise": 0.7,
+     "scale": 4,
+     "power": [
+      1.2,
+      0.3
+     ]
+    }
+   ],
+   "emitters": [
+    {
+     "at": [
+      44,
+      44
+     ],
+     "area": [
+      10,
+      16
+     ],
+     "burst": 14,
+     "start": 1,
+     "angle": [
+      0,
+      360
+     ],
+     "speed": [
+      1,
+      2.4
+     ],
+     "drag": 0.035,
+     "life": [
+      16,
+      23
+     ],
+     "spin": [
+      -60,
+      60
+     ],
+     "shapes": [
+      [
+       "chip-hull"
+      ],
+      [
+       "chip-hull-big"
+      ],
+      [
+       "chip-panel"
+      ],
+      [
+       "chip-fin"
+      ],
+      [
+       "chip-nose"
+      ],
+      [
+       "chip-glass"
+      ]
+     ],
+     "dissolve": 0.3
+    },
+    {
+     "at": [
+      44,
+      44
+     ],
+     "area": [
+      6,
+      6
+     ],
+     "burst": 20,
+     "start": 1,
+     "angle": [
+      0,
+      360
+     ],
+     "speed": [
+      1.6,
+      3.6
+     ],
+     "drag": 0.06,
+     "life": [
+      6,
+      13
+     ],
+     "shapes": [
+      [
+       "ember-hot",
+       "ember",
+       "ember-dim",
+       "ember-pink"
+      ]
+     ],
+     "trail": {
+      "color": "o",
+      "length": 1
+     }
+    }
+   ]
+  }
+ }
+}

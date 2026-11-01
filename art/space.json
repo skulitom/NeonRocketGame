@@ -1,0 +1,352 @@
+{
+ "version": 1,
+ "name": "space",
+ "width": 112,
+ "height": 80,
+ "palette": {
+  "$ref": "palette.json",
+  "N": "#26103a",
+  "P": "#3a1650",
+  "Q": "#160d30"
+ },
+ "frames": [
+  {
+   "name": "planet",
+   "duration": 1000,
+   "layers": [
+    {
+     "name": "ring-back",
+     "ops": [
+      {
+       "op": "ellipse",
+       "x": 22,
+       "y": 32,
+       "w": 68,
+       "h": 14,
+       "color": "C",
+       "filled": false
+      },
+      {
+       "op": "ellipse",
+       "x": 23,
+       "y": 33,
+       "w": 66,
+       "h": 12,
+       "color": "q",
+       "filled": false
+      }
+     ]
+    },
+    {
+     "name": "body",
+     "ops": [
+      {
+       "op": "ellipse",
+       "x": 38,
+       "y": 15,
+       "w": 36,
+       "h": 36,
+       "color": "v"
+      },
+      {
+       "op": "dither",
+       "x": 38,
+       "y": 21,
+       "w": 36,
+       "h": 3,
+       "color": "V",
+       "density": 1,
+       "over": "v"
+      },
+      {
+       "op": "dither",
+       "x": 38,
+       "y": 30,
+       "w": 36,
+       "h": 1,
+       "color": "i",
+       "density": 1,
+       "over": "v"
+      },
+      {
+       "op": "dither",
+       "x": 38,
+       "y": 40,
+       "w": 36,
+       "h": 4,
+       "color": "V",
+       "density": 1,
+       "over": "v"
+      },
+      {
+       "op": "dither",
+       "x": 38,
+       "y": 46,
+       "w": 36,
+       "h": 1,
+       "color": "i",
+       "density": 1,
+       "over": "v"
+      },
+      {
+       "op": "shade",
+       "x": 52,
+       "y": 15,
+       "w": 22,
+       "h": 36,
+       "steps": -1,
+       "density": [
+        0,
+        1
+       ],
+       "direction": "right"
+      },
+      {
+       "op": "shade",
+       "x": 42,
+       "y": 18,
+       "w": 13,
+       "h": 9,
+       "steps": 1,
+       "shape": "ellipse"
+      }
+     ]
+    },
+    {
+     "name": "ring-front",
+     "ops": [
+      {
+       "op": "ellipse",
+       "x": 22,
+       "y": 32,
+       "w": 68,
+       "h": 14,
+       "color": "c",
+       "filled": false
+      },
+      {
+       "op": "ellipse",
+       "x": 23,
+       "y": 33,
+       "w": 66,
+       "h": 12,
+       "color": "C",
+       "filled": false
+      },
+      {
+       "op": "clear",
+       "x": 0,
+       "y": 0,
+       "w": 112,
+       "h": 39
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "moon",
+   "duration": 1000,
+   "ops": [
+    {
+     "op": "ellipse",
+     "x": 46,
+     "y": 30,
+     "w": 20,
+     "h": 20,
+     "color": "e"
+    },
+    {
+     "op": "ellipse",
+     "x": 50,
+     "y": 35,
+     "w": 5,
+     "h": 4,
+     "color": "d"
+    },
+    {
+     "op": "ellipse",
+     "x": 57,
+     "y": 41,
+     "w": 6,
+     "h": 5,
+     "color": "d"
+    },
+    {
+     "op": "ellipse",
+     "x": 52,
+     "y": 44,
+     "w": 3,
+     "h": 3,
+     "color": "d"
+    },
+    {
+     "op": "shade",
+     "x": 53,
+     "y": 30,
+     "w": 13,
+     "h": 20,
+     "steps": -1,
+     "density": [
+      0,
+      1
+     ],
+     "direction": "right"
+    },
+    {
+     "op": "shade",
+     "x": 46,
+     "y": 38,
+     "w": 20,
+     "h": 12,
+     "steps": -1,
+     "density": [
+      0,
+      1
+     ],
+     "direction": "down"
+    },
+    {
+     "op": "outline",
+     "color": "f",
+     "position": "inside",
+     "directions": [
+      "xx.",
+      "x..",
+      "..."
+     ]
+    }
+   ]
+  },
+  {
+   "name": "nebula-a",
+   "duration": 1000,
+   "ops": [
+    {
+     "op": "dither",
+     "x": 0,
+     "y": 0,
+     "w": 112,
+     "h": 80,
+     "color": "Q",
+     "density": [
+      0.95,
+      0
+     ],
+     "direction": "radial",
+     "pattern": "value",
+     "scale": 7,
+     "seed": 5
+    },
+    {
+     "op": "dither",
+     "x": 14,
+     "y": 10,
+     "w": 70,
+     "h": 50,
+     "color": "N",
+     "density": [
+      0.9,
+      0
+     ],
+     "direction": "radial",
+     "pattern": "value",
+     "scale": 6,
+     "seed": 6
+    },
+    {
+     "op": "dither",
+     "x": 46,
+     "y": 26,
+     "w": 50,
+     "h": 36,
+     "color": "P",
+     "density": [
+      0.8,
+      0
+     ],
+     "direction": "radial",
+     "pattern": "value",
+     "scale": 5,
+     "seed": 7
+    }
+   ]
+  },
+  {
+   "name": "nebula-b",
+   "duration": 1000,
+   "ops": [
+    {
+     "op": "dither",
+     "x": 0,
+     "y": 0,
+     "w": 112,
+     "h": 80,
+     "color": "Q",
+     "density": [
+      0.95,
+      0
+     ],
+     "direction": "radial",
+     "pattern": "value",
+     "scale": 7,
+     "seed": 15
+    },
+    {
+     "op": "dither",
+     "x": 30,
+     "y": 6,
+     "w": 72,
+     "h": 54,
+     "color": "2",
+     "density": [
+      0.9,
+      0
+     ],
+     "direction": "radial",
+     "pattern": "value",
+     "scale": 6,
+     "seed": 16
+    },
+    {
+     "op": "dither",
+     "x": 8,
+     "y": 30,
+     "w": 56,
+     "h": 40,
+     "color": "3",
+     "density": [
+      0.7,
+      0
+     ],
+     "direction": "radial",
+     "pattern": "value",
+     "scale": 5,
+     "seed": 17
+    }
+   ]
+  }
+ ],
+ "animations": {
+  "planet": {
+   "frames": [
+    "planet"
+   ]
+  },
+  "moon": {
+   "frames": [
+    "moon"
+   ]
+  },
+  "nebula-a": {
+   "frames": [
+    "nebula-a"
+   ]
+  },
+  "nebula-b": {
+   "frames": [
+    "nebula-b"
+   ]
+  }
+ }
+}

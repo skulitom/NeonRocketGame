@@ -1,0 +1,189 @@
+{
+ "format": "pixelforge-fx",
+ "version": 1,
+ "name": "nova",
+ "width": 136,
+ "height": 136,
+ "palette": {
+  "$ref": "palette.json"
+ },
+ "symbols": {
+  "spark-hot": [
+   "W"
+  ],
+  "spark": [
+   "n"
+  ],
+  "spark-deep": [
+   "m"
+  ]
+ },
+ "effects": {
+  "nova": {
+   "frames": 16,
+   "duration": {
+    "from": 35,
+    "to": 70,
+    "ease": "in"
+   },
+   "seed": 8,
+   "looks": {
+    "wave": {
+     "colors": [
+      "M",
+      "m",
+      "n",
+      "W"
+     ],
+     "thresholds": [
+      0.18,
+      0.4,
+      0.66,
+      0.88
+     ],
+     "dither": 0.3
+    },
+    "flash": {
+     "colors": [
+      "m",
+      "n",
+      "W"
+     ],
+     "thresholds": [
+      0.3,
+      0.6,
+      0.85
+     ]
+    }
+   },
+   "cleanup": {
+    "corners": true,
+    "strays": true
+   },
+   "layers": [
+    {
+     "kind": "burst",
+     "look": "flash",
+     "at": [
+      68,
+      68
+     ],
+     "frames": [
+      0,
+      5
+     ],
+     "radius": [
+      6,
+      16,
+      10
+     ],
+     "noise": 0.5,
+     "scale": 4,
+     "power": [
+      1.6,
+      0.8,
+      0.2
+     ],
+     "hole": [
+      0,
+      0.4,
+      0.8
+     ]
+    },
+    {
+     "kind": "star",
+     "look": "flash",
+     "at": [
+      68,
+      68
+     ],
+     "frames": [
+      0,
+      4
+     ],
+     "radius": [
+      30,
+      10
+     ],
+     "points": 4,
+     "width": [
+      4,
+      2
+     ],
+     "ratio": 0.35,
+     "power": 1.3,
+     "cue": "nova"
+    },
+    {
+     "kind": "ring",
+     "look": "wave",
+     "at": [
+      68,
+      68
+     ],
+     "frames": [
+      0,
+      16
+     ],
+     "radius": [
+      6,
+      66
+     ],
+     "width": [
+      9,
+      5,
+      3
+     ],
+     "noise": 0.7,
+     "scale": 6,
+     "power": [
+      1.6,
+      1.1,
+      0.4
+     ]
+    }
+   ],
+   "emitters": [
+    {
+     "at": [
+      68,
+      68
+     ],
+     "ring": {
+      "radius": 8,
+      "outward": true,
+      "grow": [
+       1,
+       8.2
+      ]
+     },
+     "rate": [
+      6,
+      6,
+      2,
+      0
+     ],
+     "start": 0,
+     "end": 16,
+     "ease": "out",
+     "speed": [
+      0.2,
+      0.6
+     ],
+     "drag": 0.15,
+     "life": [
+      3,
+      6
+     ],
+     "shapes": [
+      [
+       "spark-hot",
+       "spark",
+       "spark-deep"
+      ]
+     ]
+    }
+   ]
+  }
+ }
+}

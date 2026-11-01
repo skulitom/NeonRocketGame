@@ -1,0 +1,855 @@
+{
+ "version": 1,
+ "name": "items",
+ "width": 19,
+ "height": 19,
+ "anchor": [
+  9,
+  9
+ ],
+ "palette": {
+  "$ref": "palette.json",
+  "R": "#ff00ff",
+  "L": "#ff00fe",
+  "D": "#ff00fd",
+  "I": "#ff00fc",
+  "J": "#ff00fb"
+ },
+ "symbols": {
+  "shield": [
+   "JJJJJJJ",
+   "JIIIIIk",
+   "JIIJIIk",
+   "JIJJJIk",
+   ".JIJIk.",
+   "..JIk..",
+   "...k..."
+  ],
+  "boost": [
+   "...J...",
+   "..JIJ..",
+   ".JI.IJ.",
+   "JI.J.IJ",
+   "..JIJ..",
+   ".JI.IJ.",
+   "JI...IJ"
+  ],
+  "nova": [
+   "...J...",
+   "...I...",
+   "..JIJ..",
+   "JIIWIIJ",
+   "..JIJ..",
+   "...I...",
+   "...J..."
+  ],
+  "shard-0": [
+   "...k...",
+   "..kwk..",
+   ".kwcCk.",
+   "kwccCqk",
+   "kwcCCqk",
+   ".kcCqk.",
+   "..kCk..",
+   "...k..."
+  ],
+  "shard-1": [
+   "..k..",
+   ".kwk.",
+   "kwcCk",
+   "kwcqk",
+   "kccqk",
+   "kcCqk",
+   ".kqk.",
+   "..k.."
+  ],
+  "shard-2": [
+   ".k.",
+   "kwk",
+   "kck",
+   "kck",
+   "kCk",
+   "kCk",
+   "kqk",
+   ".k."
+  ]
+ },
+ "frames": [
+  {
+   "name": "shield-0",
+   "duration": 140,
+   "ops": [
+    {
+     "op": "ellipse",
+     "x": 2,
+     "y": 2,
+     "w": 15,
+     "h": 15,
+     "color": "1"
+    },
+    {
+     "op": "ellipse",
+     "x": 2,
+     "y": 2,
+     "w": 15,
+     "h": 15,
+     "color": "g",
+     "filled": false
+    },
+    {
+     "op": "ellipse",
+     "x": 3,
+     "y": 3,
+     "w": 13,
+     "h": 13,
+     "color": "G",
+     "filled": false
+    },
+    {
+     "op": "outline",
+     "color": "l",
+     "position": "inside",
+     "directions": [
+      "xx.",
+      "x..",
+      "..."
+     ]
+    },
+    {
+     "op": "stamp",
+     "symbol": "shield",
+     "x": 6,
+     "y": 6,
+     "remap": {
+      "I": "g",
+      "J": "l"
+     }
+    },
+    {
+     "op": "outline",
+     "color": "k"
+    }
+   ]
+  },
+  {
+   "name": "shield-1",
+   "duration": 140,
+   "palette": {
+    "g": "l",
+    "l": "W"
+   },
+   "ops": [
+    {
+     "op": "ellipse",
+     "x": 2,
+     "y": 2,
+     "w": 15,
+     "h": 15,
+     "color": "1"
+    },
+    {
+     "op": "ellipse",
+     "x": 2,
+     "y": 2,
+     "w": 15,
+     "h": 15,
+     "color": "g",
+     "filled": false
+    },
+    {
+     "op": "ellipse",
+     "x": 3,
+     "y": 3,
+     "w": 13,
+     "h": 13,
+     "color": "G",
+     "filled": false
+    },
+    {
+     "op": "outline",
+     "color": "l",
+     "position": "inside",
+     "directions": [
+      "xx.",
+      "x..",
+      "..."
+     ]
+    },
+    {
+     "op": "stamp",
+     "symbol": "shield",
+     "x": 6,
+     "y": 6,
+     "remap": {
+      "I": "g",
+      "J": "l"
+     }
+    },
+    {
+     "op": "outline",
+     "color": "#3dff8b55"
+    }
+   ]
+  },
+  {
+   "name": "shield-2",
+   "duration": 140,
+   "ops": [
+    {
+     "op": "ellipse",
+     "x": 2,
+     "y": 2,
+     "w": 15,
+     "h": 15,
+     "color": "1"
+    },
+    {
+     "op": "ellipse",
+     "x": 2,
+     "y": 2,
+     "w": 15,
+     "h": 15,
+     "color": "g",
+     "filled": false
+    },
+    {
+     "op": "ellipse",
+     "x": 3,
+     "y": 3,
+     "w": 13,
+     "h": 13,
+     "color": "G",
+     "filled": false
+    },
+    {
+     "op": "outline",
+     "color": "l",
+     "position": "inside",
+     "directions": [
+      "xx.",
+      "x..",
+      "..."
+     ]
+    },
+    {
+     "op": "stamp",
+     "symbol": "shield",
+     "x": 6,
+     "y": 6,
+     "remap": {
+      "I": "g",
+      "J": "l"
+     }
+    },
+    {
+     "op": "outline",
+     "color": "k"
+    }
+   ]
+  },
+  {
+   "name": "shield-3",
+   "duration": 140,
+   "palette": {
+    "g": "G"
+   },
+   "ops": [
+    {
+     "op": "ellipse",
+     "x": 2,
+     "y": 2,
+     "w": 15,
+     "h": 15,
+     "color": "1"
+    },
+    {
+     "op": "ellipse",
+     "x": 2,
+     "y": 2,
+     "w": 15,
+     "h": 15,
+     "color": "g",
+     "filled": false
+    },
+    {
+     "op": "ellipse",
+     "x": 3,
+     "y": 3,
+     "w": 13,
+     "h": 13,
+     "color": "G",
+     "filled": false
+    },
+    {
+     "op": "outline",
+     "color": "l",
+     "position": "inside",
+     "directions": [
+      "xx.",
+      "x..",
+      "..."
+     ]
+    },
+    {
+     "op": "stamp",
+     "symbol": "shield",
+     "x": 6,
+     "y": 6,
+     "remap": {
+      "I": "g",
+      "J": "l"
+     }
+    },
+    {
+     "op": "outline",
+     "color": "k"
+    }
+   ]
+  },
+  {
+   "name": "boost-0",
+   "duration": 140,
+   "ops": [
+    {
+     "op": "ellipse",
+     "x": 2,
+     "y": 2,
+     "w": 15,
+     "h": 15,
+     "color": "1"
+    },
+    {
+     "op": "ellipse",
+     "x": 2,
+     "y": 2,
+     "w": 15,
+     "h": 15,
+     "color": "y",
+     "filled": false
+    },
+    {
+     "op": "ellipse",
+     "x": 3,
+     "y": 3,
+     "w": 13,
+     "h": 13,
+     "color": "O",
+     "filled": false
+    },
+    {
+     "op": "outline",
+     "color": "Y",
+     "position": "inside",
+     "directions": [
+      "xx.",
+      "x..",
+      "..."
+     ]
+    },
+    {
+     "op": "stamp",
+     "symbol": "boost",
+     "x": 6,
+     "y": 6,
+     "remap": {
+      "I": "y",
+      "J": "Y"
+     }
+    },
+    {
+     "op": "outline",
+     "color": "k"
+    }
+   ]
+  },
+  {
+   "name": "boost-1",
+   "duration": 140,
+   "palette": {
+    "y": "Y",
+    "Y": "W"
+   },
+   "ops": [
+    {
+     "op": "ellipse",
+     "x": 2,
+     "y": 2,
+     "w": 15,
+     "h": 15,
+     "color": "1"
+    },
+    {
+     "op": "ellipse",
+     "x": 2,
+     "y": 2,
+     "w": 15,
+     "h": 15,
+     "color": "y",
+     "filled": false
+    },
+    {
+     "op": "ellipse",
+     "x": 3,
+     "y": 3,
+     "w": 13,
+     "h": 13,
+     "color": "O",
+     "filled": false
+    },
+    {
+     "op": "outline",
+     "color": "Y",
+     "position": "inside",
+     "directions": [
+      "xx.",
+      "x..",
+      "..."
+     ]
+    },
+    {
+     "op": "stamp",
+     "symbol": "boost",
+     "x": 6,
+     "y": 6,
+     "remap": {
+      "I": "y",
+      "J": "Y"
+     }
+    },
+    {
+     "op": "outline",
+     "color": "#ffd23f55"
+    }
+   ]
+  },
+  {
+   "name": "boost-2",
+   "duration": 140,
+   "ops": [
+    {
+     "op": "ellipse",
+     "x": 2,
+     "y": 2,
+     "w": 15,
+     "h": 15,
+     "color": "1"
+    },
+    {
+     "op": "ellipse",
+     "x": 2,
+     "y": 2,
+     "w": 15,
+     "h": 15,
+     "color": "y",
+     "filled": false
+    },
+    {
+     "op": "ellipse",
+     "x": 3,
+     "y": 3,
+     "w": 13,
+     "h": 13,
+     "color": "O",
+     "filled": false
+    },
+    {
+     "op": "outline",
+     "color": "Y",
+     "position": "inside",
+     "directions": [
+      "xx.",
+      "x..",
+      "..."
+     ]
+    },
+    {
+     "op": "stamp",
+     "symbol": "boost",
+     "x": 6,
+     "y": 6,
+     "remap": {
+      "I": "y",
+      "J": "Y"
+     }
+    },
+    {
+     "op": "outline",
+     "color": "k"
+    }
+   ]
+  },
+  {
+   "name": "boost-3",
+   "duration": 140,
+   "palette": {
+    "y": "O"
+   },
+   "ops": [
+    {
+     "op": "ellipse",
+     "x": 2,
+     "y": 2,
+     "w": 15,
+     "h": 15,
+     "color": "1"
+    },
+    {
+     "op": "ellipse",
+     "x": 2,
+     "y": 2,
+     "w": 15,
+     "h": 15,
+     "color": "y",
+     "filled": false
+    },
+    {
+     "op": "ellipse",
+     "x": 3,
+     "y": 3,
+     "w": 13,
+     "h": 13,
+     "color": "O",
+     "filled": false
+    },
+    {
+     "op": "outline",
+     "color": "Y",
+     "position": "inside",
+     "directions": [
+      "xx.",
+      "x..",
+      "..."
+     ]
+    },
+    {
+     "op": "stamp",
+     "symbol": "boost",
+     "x": 6,
+     "y": 6,
+     "remap": {
+      "I": "y",
+      "J": "Y"
+     }
+    },
+    {
+     "op": "outline",
+     "color": "k"
+    }
+   ]
+  },
+  {
+   "name": "nova-0",
+   "duration": 140,
+   "ops": [
+    {
+     "op": "ellipse",
+     "x": 2,
+     "y": 2,
+     "w": 15,
+     "h": 15,
+     "color": "1"
+    },
+    {
+     "op": "ellipse",
+     "x": 2,
+     "y": 2,
+     "w": 15,
+     "h": 15,
+     "color": "m",
+     "filled": false
+    },
+    {
+     "op": "ellipse",
+     "x": 3,
+     "y": 3,
+     "w": 13,
+     "h": 13,
+     "color": "M",
+     "filled": false
+    },
+    {
+     "op": "outline",
+     "color": "n",
+     "position": "inside",
+     "directions": [
+      "xx.",
+      "x..",
+      "..."
+     ]
+    },
+    {
+     "op": "stamp",
+     "symbol": "nova",
+     "x": 6,
+     "y": 6,
+     "remap": {
+      "I": "m",
+      "J": "n"
+     }
+    },
+    {
+     "op": "outline",
+     "color": "k"
+    }
+   ]
+  },
+  {
+   "name": "nova-1",
+   "duration": 140,
+   "palette": {
+    "m": "n",
+    "n": "W"
+   },
+   "ops": [
+    {
+     "op": "ellipse",
+     "x": 2,
+     "y": 2,
+     "w": 15,
+     "h": 15,
+     "color": "1"
+    },
+    {
+     "op": "ellipse",
+     "x": 2,
+     "y": 2,
+     "w": 15,
+     "h": 15,
+     "color": "m",
+     "filled": false
+    },
+    {
+     "op": "ellipse",
+     "x": 3,
+     "y": 3,
+     "w": 13,
+     "h": 13,
+     "color": "M",
+     "filled": false
+    },
+    {
+     "op": "outline",
+     "color": "n",
+     "position": "inside",
+     "directions": [
+      "xx.",
+      "x..",
+      "..."
+     ]
+    },
+    {
+     "op": "stamp",
+     "symbol": "nova",
+     "x": 6,
+     "y": 6,
+     "remap": {
+      "I": "m",
+      "J": "n"
+     }
+    },
+    {
+     "op": "outline",
+     "color": "#ff3fa455"
+    }
+   ]
+  },
+  {
+   "name": "nova-2",
+   "duration": 140,
+   "ops": [
+    {
+     "op": "ellipse",
+     "x": 2,
+     "y": 2,
+     "w": 15,
+     "h": 15,
+     "color": "1"
+    },
+    {
+     "op": "ellipse",
+     "x": 2,
+     "y": 2,
+     "w": 15,
+     "h": 15,
+     "color": "m",
+     "filled": false
+    },
+    {
+     "op": "ellipse",
+     "x": 3,
+     "y": 3,
+     "w": 13,
+     "h": 13,
+     "color": "M",
+     "filled": false
+    },
+    {
+     "op": "outline",
+     "color": "n",
+     "position": "inside",
+     "directions": [
+      "xx.",
+      "x..",
+      "..."
+     ]
+    },
+    {
+     "op": "stamp",
+     "symbol": "nova",
+     "x": 6,
+     "y": 6,
+     "remap": {
+      "I": "m",
+      "J": "n"
+     }
+    },
+    {
+     "op": "outline",
+     "color": "k"
+    }
+   ]
+  },
+  {
+   "name": "nova-3",
+   "duration": 140,
+   "palette": {
+    "m": "M"
+   },
+   "ops": [
+    {
+     "op": "ellipse",
+     "x": 2,
+     "y": 2,
+     "w": 15,
+     "h": 15,
+     "color": "1"
+    },
+    {
+     "op": "ellipse",
+     "x": 2,
+     "y": 2,
+     "w": 15,
+     "h": 15,
+     "color": "m",
+     "filled": false
+    },
+    {
+     "op": "ellipse",
+     "x": 3,
+     "y": 3,
+     "w": 13,
+     "h": 13,
+     "color": "M",
+     "filled": false
+    },
+    {
+     "op": "outline",
+     "color": "n",
+     "position": "inside",
+     "directions": [
+      "xx.",
+      "x..",
+      "..."
+     ]
+    },
+    {
+     "op": "stamp",
+     "symbol": "nova",
+     "x": 6,
+     "y": 6,
+     "remap": {
+      "I": "m",
+      "J": "n"
+     }
+    },
+    {
+     "op": "outline",
+     "color": "k"
+    }
+   ]
+  },
+  {
+   "name": "shard-0",
+   "duration": 160,
+   "ops": [
+    {
+     "op": "stamp",
+     "symbol": "shard-0",
+     "x": 6,
+     "y": 5
+    }
+   ]
+  },
+  {
+   "name": "shard-1",
+   "duration": 90,
+   "ops": [
+    {
+     "op": "stamp",
+     "symbol": "shard-1",
+     "x": 7,
+     "y": 5
+    }
+   ]
+  },
+  {
+   "name": "shard-2",
+   "duration": 90,
+   "ops": [
+    {
+     "op": "stamp",
+     "symbol": "shard-2",
+     "x": 8,
+     "y": 5
+    }
+   ]
+  },
+  {
+   "name": "shard-3",
+   "duration": 90,
+   "ops": [
+    {
+     "op": "stamp",
+     "symbol": "shard-1",
+     "x": 7,
+     "y": 5,
+     "flipX": true
+    }
+   ]
+  }
+ ],
+ "animations": {
+  "shield": {
+   "frames": [
+    "shield-0",
+    "shield-1",
+    "shield-2",
+    "shield-3"
+   ]
+  },
+  "boost": {
+   "frames": [
+    "boost-0",
+    "boost-1",
+    "boost-2",
+    "boost-3"
+   ]
+  },
+  "nova": {
+   "frames": [
+    "nova-0",
+    "nova-1",
+    "nova-2",
+    "nova-3"
+   ]
+  },
+  "shard": {
+   "frames": [
+    "shard-0",
+    "shard-1",
+    "shard-2",
+    "shard-3"
+   ]
+  }
+ }
+}

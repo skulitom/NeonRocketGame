@@ -1,0 +1,294 @@
+{
+ "version": 1,
+ "name": "rocket",
+ "width": 23,
+ "height": 25,
+ "anchor": [
+  11,
+  12
+ ],
+ "palette": {
+  "$ref": "palette.json"
+ },
+ "symbols": {
+  "bank-l2": [
+   "...........k...........",
+   "..........kmk..........",
+   "..........kmk..........",
+   ".........kmMMk.........",
+   ".........kmMMk.........",
+   "........kmMMMMk........",
+   "........kHHhhhk........",
+   ".......khHHhhhhk.......",
+   ".......khqqqhhhk.......",
+   ".......khWcqhhhk.......",
+   ".......khcCqhhhk.......",
+   ".......khqqqhhhk.......",
+   ".......khHHhhhhk.......",
+   ".......kmmMMMMMk.......",
+   ".......khHHhhhhk.......",
+   ".......khHHhhhhmk......",
+   "......knhHHhhhhmmk.....",
+   "......knhHHhhhhmMmk....",
+   ".....knnhHHhhhhmMMmk...",
+   ".....knnhHHhhhhmMMmk...",
+   "....knmkkhhhhhkkMMMmk..",
+   "....kmk.khhhhhk.kMMMk..",
+   "....kk..kqcccqk..kkkk..",
+   "........kcwWwck........",
+   ".........kkkkk........."
+  ],
+  "bank-l1": [
+   "...........k...........",
+   "..........kmk..........",
+   "..........kmk..........",
+   ".........kmMMk.........",
+   ".........kmMMk.........",
+   "........knmMMMk........",
+   "........ksHHhhk........",
+   ".......kHsHHhhhk.......",
+   ".......kHqqqhhhk.......",
+   ".......kHWcqhhhk.......",
+   ".......kHcCqhhhk.......",
+   ".......kHqqqhhhk.......",
+   ".......kHsHHhhhk.......",
+   ".......knmmMMMMk.......",
+   ".......kHsHHhhhk.......",
+   "......knHsHHhhhmk......",
+   "......knHsHHhhhmmk.....",
+   ".....knnHsHHhhhmMmk....",
+   "....knmnHsHHhhhmMMmk...",
+   "....knmnHsHHhhhmMMmk...",
+   "...knmmkkhhhhhkkMMMmk..",
+   "...kmmk.khhhhhk.kMMMk..",
+   "...kkk..kqcccqk..kkkk..",
+   "........kcwWwck........",
+   ".........kkkkk........."
+  ],
+  "center": [
+   "...........k...........",
+   "..........knk..........",
+   "..........knk..........",
+   ".........knmMk.........",
+   ".........knmMk.........",
+   "........knmmMMk........",
+   "........kssHHhk........",
+   ".......kHssHHhhk.......",
+   ".......kHsqqqhhk.......",
+   ".......kHsWcqhhk.......",
+   ".......kHscCqhhk.......",
+   ".......kHsqqqhhk.......",
+   ".......kHssHHhhk.......",
+   ".......knmmmMMMk.......",
+   ".......kHssHHhhk.......",
+   "......knHssHHhhmk......",
+   ".....knnHssHHhhmmk.....",
+   "....knmnHssHHhhmMmk....",
+   "...knmmnHssHHhhmMMmk...",
+   "...knmmnHssHHhhmMMmk...",
+   "..knmmmkkhhhhhkkMMMmk..",
+   "..kmmmk.khhhhhk.kMMMk..",
+   "..kkkk..kqcccqk..kkkk..",
+   "........kcwWwck........",
+   ".........kkkkk........."
+  ],
+  "bank-r1": [
+   "...........k...........",
+   "..........knk..........",
+   "..........knk..........",
+   ".........knnMk.........",
+   ".........knnMk.........",
+   "........knnmmMk........",
+   "........ksssHHk........",
+   ".......kHsssHHhk.......",
+   ".......kHssqqqhk.......",
+   ".......kHssWcqhk.......",
+   ".......kHsscCqhk.......",
+   ".......kHssqqqhk.......",
+   ".......kHsssHHhk.......",
+   ".......knnmmmMMk.......",
+   ".......kHsssHHhk.......",
+   "......knHsssHHhmk......",
+   ".....knnHsssHHhmk......",
+   "....knmnHsssHHhmmk.....",
+   "...knmmnHsssHHhmMmk....",
+   "...knmmnHsssHHhmMmk....",
+   "..knmmmkkhhhhhkkMMmk...",
+   "..kmmmk.khhhhhk.kMMk...",
+   "..kkkk..kqcccqk..kkk...",
+   "........kcwWwck........",
+   ".........kkkkk........."
+  ],
+  "bank-r2": [
+   "...........k...........",
+   "..........knk..........",
+   "..........knk..........",
+   ".........knnmk.........",
+   ".........knnmk.........",
+   "........knnnmMk........",
+   "........kssHHHk........",
+   ".......ksssHHHhk.......",
+   ".......ksssqqqhk.......",
+   ".......ksssWcqhk.......",
+   ".......kssscCqhk.......",
+   ".......ksssqqqhk.......",
+   ".......ksssHHHhk.......",
+   ".......knnnmmmMk.......",
+   ".......ksssHHHhk.......",
+   "......knsssHHHhk.......",
+   ".....knnsssHHHhmk......",
+   "....knmnsssHHHhmk......",
+   "...knmmnsssHHHhmmk.....",
+   "...knmmnsssHHHhmmk.....",
+   "..knmmmkkhhhhhkkMmk....",
+   "..kmmmk.khhhhhk.kMk....",
+   "..kkkk..kqcccqk..kk....",
+   "........kcwWwck........",
+   ".........kkkkk........."
+  ]
+ },
+ "frames": [
+  {
+   "name": "bank-l2",
+   "points": {
+    "nozzle": [
+     11,
+     24
+    ]
+   },
+   "ops": [
+    {
+     "op": "stamp",
+     "symbol": "bank-l2",
+     "x": 0,
+     "y": 0
+    }
+   ]
+  },
+  {
+   "name": "bank-l1",
+   "points": {
+    "nozzle": [
+     11,
+     24
+    ]
+   },
+   "ops": [
+    {
+     "op": "stamp",
+     "symbol": "bank-l1",
+     "x": 0,
+     "y": 0
+    }
+   ]
+  },
+  {
+   "name": "center",
+   "points": {
+    "nozzle": [
+     11,
+     24
+    ]
+   },
+   "ops": [
+    {
+     "op": "stamp",
+     "symbol": "center",
+     "x": 0,
+     "y": 0
+    }
+   ]
+  },
+  {
+   "name": "bank-r1",
+   "points": {
+    "nozzle": [
+     11,
+     24
+    ]
+   },
+   "ops": [
+    {
+     "op": "stamp",
+     "symbol": "bank-r1",
+     "x": 0,
+     "y": 0
+    }
+   ]
+  },
+  {
+   "name": "bank-r2",
+   "points": {
+    "nozzle": [
+     11,
+     24
+    ]
+   },
+   "ops": [
+    {
+     "op": "stamp",
+     "symbol": "bank-r2",
+     "x": 0,
+     "y": 0
+    }
+   ]
+  },
+  {
+   "name": "flash",
+   "duration": 60,
+   "points": {
+    "nozzle": [
+     11,
+     24
+    ]
+   },
+   "ops": [
+    {
+     "op": "copy",
+     "from": "center",
+     "remap": {
+      "s": "W",
+      "H": "w",
+      "h": "c",
+      "n": "W",
+      "m": "w",
+      "M": "c",
+      "q": "c",
+      "C": "w",
+      "c": "W"
+     }
+    }
+   ]
+  }
+ ],
+ "animations": {
+  "center": {
+   "frames": [
+    "center"
+   ]
+  },
+  "bank-left": {
+   "frames": [
+    "bank-l1",
+    "bank-l2"
+   ],
+   "loop": false
+  },
+  "bank-right": {
+   "frames": [
+    "bank-r1",
+    "bank-r2"
+   ],
+   "loop": false
+  },
+  "hit": {
+   "frames": [
+    "flash",
+    "center",
+    "flash",
+    "center"
+   ],
+   "loop": false
+  }
+ }
+}

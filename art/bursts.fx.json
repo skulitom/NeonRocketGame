@@ -1,0 +1,1039 @@
+{
+ "format": "pixelforge-fx",
+ "version": 1,
+ "name": "bursts",
+ "width": 48,
+ "height": 48,
+ "palette": {
+  "$ref": "palette.json"
+ },
+ "symbols": {
+  "rock-chip": [
+   "ed",
+   "db"
+  ],
+  "rock-chip-big": [
+   ".ed",
+   "edb",
+   "db."
+  ],
+  "rock-chip-glow-pink": [
+   "dm",
+   "mb"
+  ],
+  "rock-chip-glow-orange": [
+   "do",
+   "ob"
+  ],
+  "rock-chip-glow-violet": [
+   "dv",
+   "vb"
+  ],
+  "spark-hot": [
+   "W"
+  ],
+  "spark-pink": [
+   "n"
+  ],
+  "spark-orange": [
+   "y"
+  ],
+  "spark-violet": [
+   "i"
+  ],
+  "spark-shield": [
+   "l"
+  ],
+  "spark-boost": [
+   "Y"
+  ],
+  "spark-nova": [
+   "n"
+  ],
+  "spark-shard": [
+   "c"
+  ]
+ },
+ "effects": {
+  "break-pink": {
+   "frames": 12,
+   "duration": {
+    "from": 40,
+    "to": 85,
+    "ease": "in"
+   },
+   "seed": 11,
+   "looks": {
+    "neon": {
+     "colors": [
+      "M",
+      "m",
+      "n",
+      "W"
+     ],
+     "thresholds": [
+      0.2,
+      0.45,
+      0.7,
+      0.9
+     ]
+    }
+   },
+   "cleanup": {
+    "corners": true,
+    "strays": true
+   },
+   "layers": [
+    {
+     "kind": "star",
+     "look": "neon",
+     "at": [
+      24,
+      24
+     ],
+     "frames": [
+      0,
+      3
+     ],
+     "radius": [
+      13,
+      5
+     ],
+     "points": 4,
+     "width": [
+      3,
+      1
+     ],
+     "ratio": 0.5,
+     "power": 1.2,
+     "cue": "hit"
+    },
+    {
+     "kind": "ring",
+     "look": "neon",
+     "at": [
+      24,
+      24
+     ],
+     "frames": [
+      0,
+      8
+     ],
+     "radius": [
+      4,
+      19
+     ],
+     "width": [
+      4,
+      2,
+      1
+     ],
+     "noise": 0.6,
+     "scale": 4,
+     "power": [
+      1.2,
+      0.8,
+      0.3
+     ]
+    }
+   ],
+   "emitters": [
+    {
+     "at": [
+      24,
+      24
+     ],
+     "area": [
+      8,
+      8
+     ],
+     "burst": 7,
+     "start": 0,
+     "angle": [
+      0,
+      360
+     ],
+     "speed": [
+      0.8,
+      2.1
+     ],
+     "drag": 0.05,
+     "life": [
+      8,
+      12
+     ],
+     "spin": [
+      -90,
+      90
+     ],
+     "shapes": [
+      [
+       "rock-chip"
+      ],
+      [
+       "rock-chip-big"
+      ],
+      [
+       "rock-chip-glow-pink"
+      ]
+     ],
+     "dissolve": 0.4
+    },
+    {
+     "at": [
+      24,
+      24
+     ],
+     "area": [
+      4,
+      4
+     ],
+     "burst": 9,
+     "start": 0,
+     "angle": [
+      0,
+      360
+     ],
+     "speed": [
+      1.4,
+      2.8
+     ],
+     "drag": 0.08,
+     "life": [
+      4,
+      8
+     ],
+     "shapes": [
+      [
+       "spark-hot",
+       "spark-pink"
+      ]
+     ],
+     "trail": {
+      "color": "m",
+      "length": 1
+     }
+    }
+   ]
+  },
+  "break-orange": {
+   "frames": 12,
+   "duration": {
+    "from": 40,
+    "to": 85,
+    "ease": "in"
+   },
+   "seed": 11,
+   "looks": {
+    "neon": {
+     "colors": [
+      "O",
+      "o",
+      "y",
+      "Y"
+     ],
+     "thresholds": [
+      0.2,
+      0.45,
+      0.7,
+      0.9
+     ]
+    }
+   },
+   "cleanup": {
+    "corners": true,
+    "strays": true
+   },
+   "layers": [
+    {
+     "kind": "star",
+     "look": "neon",
+     "at": [
+      24,
+      24
+     ],
+     "frames": [
+      0,
+      3
+     ],
+     "radius": [
+      13,
+      5
+     ],
+     "points": 4,
+     "width": [
+      3,
+      1
+     ],
+     "ratio": 0.5,
+     "power": 1.2,
+     "cue": "hit"
+    },
+    {
+     "kind": "ring",
+     "look": "neon",
+     "at": [
+      24,
+      24
+     ],
+     "frames": [
+      0,
+      8
+     ],
+     "radius": [
+      4,
+      19
+     ],
+     "width": [
+      4,
+      2,
+      1
+     ],
+     "noise": 0.6,
+     "scale": 4,
+     "power": [
+      1.2,
+      0.8,
+      0.3
+     ]
+    }
+   ],
+   "emitters": [
+    {
+     "at": [
+      24,
+      24
+     ],
+     "area": [
+      8,
+      8
+     ],
+     "burst": 7,
+     "start": 0,
+     "angle": [
+      0,
+      360
+     ],
+     "speed": [
+      0.8,
+      2.1
+     ],
+     "drag": 0.05,
+     "life": [
+      8,
+      12
+     ],
+     "spin": [
+      -90,
+      90
+     ],
+     "shapes": [
+      [
+       "rock-chip"
+      ],
+      [
+       "rock-chip-big"
+      ],
+      [
+       "rock-chip-glow-orange"
+      ]
+     ],
+     "dissolve": 0.4
+    },
+    {
+     "at": [
+      24,
+      24
+     ],
+     "area": [
+      4,
+      4
+     ],
+     "burst": 9,
+     "start": 0,
+     "angle": [
+      0,
+      360
+     ],
+     "speed": [
+      1.4,
+      2.8
+     ],
+     "drag": 0.08,
+     "life": [
+      4,
+      8
+     ],
+     "shapes": [
+      [
+       "spark-hot",
+       "spark-orange"
+      ]
+     ],
+     "trail": {
+      "color": "o",
+      "length": 1
+     }
+    }
+   ]
+  },
+  "break-violet": {
+   "frames": 12,
+   "duration": {
+    "from": 40,
+    "to": 85,
+    "ease": "in"
+   },
+   "seed": 11,
+   "looks": {
+    "neon": {
+     "colors": [
+      "V",
+      "v",
+      "i",
+      "W"
+     ],
+     "thresholds": [
+      0.2,
+      0.45,
+      0.7,
+      0.9
+     ]
+    }
+   },
+   "cleanup": {
+    "corners": true,
+    "strays": true
+   },
+   "layers": [
+    {
+     "kind": "star",
+     "look": "neon",
+     "at": [
+      24,
+      24
+     ],
+     "frames": [
+      0,
+      3
+     ],
+     "radius": [
+      13,
+      5
+     ],
+     "points": 4,
+     "width": [
+      3,
+      1
+     ],
+     "ratio": 0.5,
+     "power": 1.2,
+     "cue": "hit"
+    },
+    {
+     "kind": "ring",
+     "look": "neon",
+     "at": [
+      24,
+      24
+     ],
+     "frames": [
+      0,
+      8
+     ],
+     "radius": [
+      4,
+      19
+     ],
+     "width": [
+      4,
+      2,
+      1
+     ],
+     "noise": 0.6,
+     "scale": 4,
+     "power": [
+      1.2,
+      0.8,
+      0.3
+     ]
+    }
+   ],
+   "emitters": [
+    {
+     "at": [
+      24,
+      24
+     ],
+     "area": [
+      8,
+      8
+     ],
+     "burst": 7,
+     "start": 0,
+     "angle": [
+      0,
+      360
+     ],
+     "speed": [
+      0.8,
+      2.1
+     ],
+     "drag": 0.05,
+     "life": [
+      8,
+      12
+     ],
+     "spin": [
+      -90,
+      90
+     ],
+     "shapes": [
+      [
+       "rock-chip"
+      ],
+      [
+       "rock-chip-big"
+      ],
+      [
+       "rock-chip-glow-violet"
+      ]
+     ],
+     "dissolve": 0.4
+    },
+    {
+     "at": [
+      24,
+      24
+     ],
+     "area": [
+      4,
+      4
+     ],
+     "burst": 9,
+     "start": 0,
+     "angle": [
+      0,
+      360
+     ],
+     "speed": [
+      1.4,
+      2.8
+     ],
+     "drag": 0.08,
+     "life": [
+      4,
+      8
+     ],
+     "shapes": [
+      [
+       "spark-hot",
+       "spark-violet"
+      ]
+     ],
+     "trail": {
+      "color": "v",
+      "length": 1
+     }
+    }
+   ]
+  },
+  "pickup-shield": {
+   "frames": 10,
+   "duration": {
+    "from": 35,
+    "to": 75,
+    "ease": "in"
+   },
+   "seed": 3,
+   "looks": {
+    "glow": {
+     "colors": [
+      "G",
+      "g",
+      "l",
+      "W"
+     ],
+     "thresholds": [
+      0.2,
+      0.45,
+      0.7,
+      0.9
+     ]
+    }
+   },
+   "cleanup": {
+    "corners": true,
+    "strays": true
+   },
+   "layers": [
+    {
+     "kind": "star",
+     "look": "glow",
+     "at": [
+      24,
+      24
+     ],
+     "frames": [
+      0,
+      5
+     ],
+     "radius": [
+      16,
+      4
+     ],
+     "points": 4,
+     "width": [
+      3,
+      1
+     ],
+     "ratio": 0.4,
+     "power": 1.3
+    },
+    {
+     "kind": "ring",
+     "look": "glow",
+     "at": [
+      24,
+      24
+     ],
+     "frames": [
+      0,
+      9
+     ],
+     "radius": [
+      3,
+      20
+     ],
+     "width": [
+      4,
+      2,
+      1
+     ],
+     "noise": 0.3,
+     "scale": 4,
+     "power": [
+      1.3,
+      0.8,
+      0.3
+     ]
+    }
+   ],
+   "emitters": [
+    {
+     "at": [
+      24,
+      24
+     ],
+     "ring": {
+      "radius": 5,
+      "outward": true,
+      "even": true
+     },
+     "burst": 8,
+     "start": 1,
+     "speed": [
+      0.9,
+      1.5
+     ],
+     "drag": 0.1,
+     "life": [
+      5,
+      8
+     ],
+     "shapes": [
+      [
+       "spark-hot",
+       "spark-shield"
+      ]
+     ]
+    }
+   ]
+  },
+  "pickup-boost": {
+   "frames": 10,
+   "duration": {
+    "from": 35,
+    "to": 75,
+    "ease": "in"
+   },
+   "seed": 3,
+   "looks": {
+    "glow": {
+     "colors": [
+      "O",
+      "y",
+      "Y",
+      "W"
+     ],
+     "thresholds": [
+      0.2,
+      0.45,
+      0.7,
+      0.9
+     ]
+    }
+   },
+   "cleanup": {
+    "corners": true,
+    "strays": true
+   },
+   "layers": [
+    {
+     "kind": "star",
+     "look": "glow",
+     "at": [
+      24,
+      24
+     ],
+     "frames": [
+      0,
+      5
+     ],
+     "radius": [
+      16,
+      4
+     ],
+     "points": 4,
+     "width": [
+      3,
+      1
+     ],
+     "ratio": 0.4,
+     "power": 1.3
+    },
+    {
+     "kind": "ring",
+     "look": "glow",
+     "at": [
+      24,
+      24
+     ],
+     "frames": [
+      0,
+      9
+     ],
+     "radius": [
+      3,
+      20
+     ],
+     "width": [
+      4,
+      2,
+      1
+     ],
+     "noise": 0.3,
+     "scale": 4,
+     "power": [
+      1.3,
+      0.8,
+      0.3
+     ]
+    }
+   ],
+   "emitters": [
+    {
+     "at": [
+      24,
+      24
+     ],
+     "ring": {
+      "radius": 5,
+      "outward": true,
+      "even": true
+     },
+     "burst": 8,
+     "start": 1,
+     "speed": [
+      0.9,
+      1.5
+     ],
+     "drag": 0.1,
+     "life": [
+      5,
+      8
+     ],
+     "shapes": [
+      [
+       "spark-hot",
+       "spark-boost"
+      ]
+     ]
+    }
+   ]
+  },
+  "pickup-nova": {
+   "frames": 10,
+   "duration": {
+    "from": 35,
+    "to": 75,
+    "ease": "in"
+   },
+   "seed": 3,
+   "looks": {
+    "glow": {
+     "colors": [
+      "M",
+      "m",
+      "n",
+      "W"
+     ],
+     "thresholds": [
+      0.2,
+      0.45,
+      0.7,
+      0.9
+     ]
+    }
+   },
+   "cleanup": {
+    "corners": true,
+    "strays": true
+   },
+   "layers": [
+    {
+     "kind": "star",
+     "look": "glow",
+     "at": [
+      24,
+      24
+     ],
+     "frames": [
+      0,
+      5
+     ],
+     "radius": [
+      16,
+      4
+     ],
+     "points": 4,
+     "width": [
+      3,
+      1
+     ],
+     "ratio": 0.4,
+     "power": 1.3
+    },
+    {
+     "kind": "ring",
+     "look": "glow",
+     "at": [
+      24,
+      24
+     ],
+     "frames": [
+      0,
+      9
+     ],
+     "radius": [
+      3,
+      20
+     ],
+     "width": [
+      4,
+      2,
+      1
+     ],
+     "noise": 0.3,
+     "scale": 4,
+     "power": [
+      1.3,
+      0.8,
+      0.3
+     ]
+    }
+   ],
+   "emitters": [
+    {
+     "at": [
+      24,
+      24
+     ],
+     "ring": {
+      "radius": 5,
+      "outward": true,
+      "even": true
+     },
+     "burst": 8,
+     "start": 1,
+     "speed": [
+      0.9,
+      1.5
+     ],
+     "drag": 0.1,
+     "life": [
+      5,
+      8
+     ],
+     "shapes": [
+      [
+       "spark-hot",
+       "spark-nova"
+      ]
+     ]
+    }
+   ]
+  },
+  "pickup-shard": {
+   "frames": 7,
+   "duration": 45,
+   "seed": 2,
+   "looks": {
+    "glow": {
+     "colors": [
+      "C",
+      "c",
+      "w",
+      "W"
+     ],
+     "thresholds": [
+      0.2,
+      0.45,
+      0.7,
+      0.9
+     ]
+    }
+   },
+   "layers": [
+    {
+     "kind": "star",
+     "look": "glow",
+     "at": [
+      24,
+      24
+     ],
+     "frames": [
+      0,
+      6
+     ],
+     "radius": [
+      8,
+      2
+     ],
+     "points": 4,
+     "width": [
+      2,
+      1
+     ],
+     "ratio": 0.4,
+     "power": [
+      1.3,
+      0.6
+     ]
+    }
+   ],
+   "emitters": [
+    {
+     "at": [
+      24,
+      24
+     ],
+     "ring": {
+      "radius": 2,
+      "outward": true,
+      "even": true
+     },
+     "burst": 4,
+     "start": 0,
+     "speed": [
+      0.8,
+      1.1
+     ],
+     "drag": 0.12,
+     "life": [
+      3,
+      5
+     ],
+     "shapes": [
+      [
+       "spark-hot",
+       "spark-shard"
+      ]
+     ]
+    }
+   ]
+  },
+  "graze": {
+   "frames": 6,
+   "duration": 45,
+   "seed": 9,
+   "looks": {
+    "glow": {
+     "colors": [
+      "C",
+      "c",
+      "w",
+      "W"
+     ],
+     "thresholds": [
+      0.2,
+      0.45,
+      0.7,
+      0.9
+     ]
+    }
+   },
+   "layers": [
+    {
+     "kind": "star",
+     "look": "glow",
+     "at": [
+      24,
+      24
+     ],
+     "frames": [
+      0,
+      5
+     ],
+     "radius": [
+      7,
+      2
+     ],
+     "points": 4,
+     "width": [
+      2,
+      1
+     ],
+     "ratio": 0.5,
+     "power": [
+      1.3,
+      0.5
+     ]
+    }
+   ],
+   "emitters": [
+    {
+     "at": [
+      24,
+      24
+     ],
+     "burst": 5,
+     "start": 0,
+     "angle": [
+      0,
+      360
+     ],
+     "speed": [
+      1,
+      1.8
+     ],
+     "drag": 0.1,
+     "life": [
+      3,
+      5
+     ],
+     "shapes": [
+      [
+       "spark-hot",
+       "spark-shard"
+      ]
+     ],
+     "trail": {
+      "color": "C",
+      "length": 1
+     }
+    }
+   ]
+  }
+ }
+}

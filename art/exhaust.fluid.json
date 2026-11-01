@@ -1,0 +1,29 @@
+{
+ "format": "pixelforge-fluid",
+ "version": 1,
+ "name": "exhaust",
+ "width": 20,
+ "height": 48,
+ "palette": { "W": "#ffffff", "c": "#c9feff", "C": "#62f4f8", "b": "#2f7bff", "v": "#6a3cff", "u": "#6a3cff99", "p": "#ff3fa4" },
+ "effects": {
+  "exhaust": {
+   "frames": 24,
+   "duration": 33,
+   "loop": true,
+   "seed": 7,
+   "buoyancy": 0.6,
+   "vorticity": 0.3,
+   "dissipation": 0.2,
+   "cooling": 0.155,
+   "drag": 0.02,
+   "emitters": [
+    { "name": "jet", "at": [10, 46], "radius": 1.8, "rate": 1, "temperature": 1.05, "velocity": [0, -3], "noise": 0.5, "flicker": 0.25 },
+    { "name": "sparks", "at": [10, 42], "radius": 1.5, "rate": 1,
+      "sparks": { "count": 0.12, "life": [5, 9], "colors": ["W", "c", "p"], "trail": true, "angle": [255, 285], "speed": [0.8, 1.4] } }
+   ],
+   "look": [
+    { "field": "temperature", "colors": ["u", "v", "b", "C", "c", "W"], "thresholds": [0.1, 0.18, 0.3, 0.48, 0.7, 0.93], "dither": 0.5 }
+   ]
+  }
+ }
+}

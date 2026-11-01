@@ -1,0 +1,21 @@
+{
+ "version": 1,
+ "name": "logo",
+ "width": 96,
+ "height": 44,
+ "palette": { "$ref": "palette.json" },
+ "frames": [
+  { "name": "logo", "duration": 1000, "layers": [
+   { "name": "neon", "ops": [
+    { "op": "text", "x": 48, "y": 3, "text": "NEON", "color": "W", "align": "center", "scale": 2, "spacing": 1 },
+    { "op": "outline", "color": "m", "position": "outside" },
+    { "op": "outline", "color": "#ff3fa466", "position": "outside" }
+   ] },
+   { "name": "voyage", "ops": [
+    { "op": "text", "x": 48, "y": 25, "text": "VOYAGE", "color": "W", "align": "center", "scale": 2, "spacing": 1 },
+    { "op": "outline", "color": "c", "position": "outside" },
+    { "op": "outline", "color": "#62f4f866", "position": "outside" }
+   ] }
+  ] }
+ ]
+}

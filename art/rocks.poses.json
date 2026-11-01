@@ -1,0 +1,855 @@
+{
+ "format": "pixelforge-poses",
+ "version": 1,
+ "name": "rocks",
+ "width": 34,
+ "height": 34,
+ "palette": {
+  "$ref": "palette.json"
+ },
+ "parts": {
+  "rock-l": {
+   "rows": [
+    "..............b.....",
+    ".........ddddddd....",
+    "....deddddddddedd...",
+    "dddbbbddddddaddddbd.",
+    "ddbaaaedddeamaddedd.",
+    "ddbaaaedddammmadddd.",
+    "ddbaaaeddedamaedddd.",
+    "dddeeeddddddadddddd.",
+    "ddddddddddddbddbdddd",
+    "dddddddddddedbdddddd",
+    "dddddddddeddbabddddd",
+    "dddaaadddddbaaaedddd",
+    ".edamaddddddbaedddd.",
+    ".ddaaaddddddbedddd..",
+    "..dddddddddddddbd...",
+    ".....ddddddddddd...."
+   ],
+   "anchor": [
+    10,
+    8
+   ]
+  },
+  "rock-m": {
+   "rows": [
+    "...ddddedd....",
+    "...dededddd...",
+    "..dbbdddddd...",
+    ".ddbabdddddd..",
+    ".dbaaaeddedd..",
+    "dddbaeddddddb.",
+    "ddddedddaaaddd",
+    ".ddddddbamadd.",
+    "..ddddddaaadd.",
+    "...ddddddddd..",
+    ".....ddd......"
+   ],
+   "anchor": [
+    7,
+    5
+   ]
+  },
+  "rock-s": {
+   "rows": [
+    "....ddd...",
+    ".dddddddd.",
+    "dbbbdddddd",
+    "dbaedaaadd",
+    "dbeedamadd",
+    "dddddaaad.",
+    ".bdddddd..",
+    "...ddd...."
+   ],
+   "anchor": [
+    5,
+    4
+   ]
+  }
+ },
+ "poses": [
+  {
+   "name": "l-0",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-l",
+     "rotate": 0
+    }
+   ]
+  },
+  {
+   "name": "l-1",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-l",
+     "rotate": 23
+    }
+   ]
+  },
+  {
+   "name": "l-2",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-l",
+     "rotate": 45
+    }
+   ]
+  },
+  {
+   "name": "l-3",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-l",
+     "rotate": 68
+    }
+   ]
+  },
+  {
+   "name": "l-4",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-l",
+     "rotate": 90
+    }
+   ]
+  },
+  {
+   "name": "l-5",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-l",
+     "rotate": 113
+    }
+   ]
+  },
+  {
+   "name": "l-6",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-l",
+     "rotate": 135
+    }
+   ]
+  },
+  {
+   "name": "l-7",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-l",
+     "rotate": 158
+    }
+   ]
+  },
+  {
+   "name": "l-8",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-l",
+     "rotate": 180
+    }
+   ]
+  },
+  {
+   "name": "l-9",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-l",
+     "rotate": 203
+    }
+   ]
+  },
+  {
+   "name": "l-10",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-l",
+     "rotate": 225
+    }
+   ]
+  },
+  {
+   "name": "l-11",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-l",
+     "rotate": 248
+    }
+   ]
+  },
+  {
+   "name": "l-12",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-l",
+     "rotate": 270
+    }
+   ]
+  },
+  {
+   "name": "l-13",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-l",
+     "rotate": 293
+    }
+   ]
+  },
+  {
+   "name": "l-14",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-l",
+     "rotate": 315
+    }
+   ]
+  },
+  {
+   "name": "l-15",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-l",
+     "rotate": 338
+    }
+   ]
+  },
+  {
+   "name": "m-0",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-m",
+     "rotate": 0
+    }
+   ]
+  },
+  {
+   "name": "m-1",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-m",
+     "rotate": 23
+    }
+   ]
+  },
+  {
+   "name": "m-2",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-m",
+     "rotate": 45
+    }
+   ]
+  },
+  {
+   "name": "m-3",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-m",
+     "rotate": 68
+    }
+   ]
+  },
+  {
+   "name": "m-4",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-m",
+     "rotate": 90
+    }
+   ]
+  },
+  {
+   "name": "m-5",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-m",
+     "rotate": 113
+    }
+   ]
+  },
+  {
+   "name": "m-6",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-m",
+     "rotate": 135
+    }
+   ]
+  },
+  {
+   "name": "m-7",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-m",
+     "rotate": 158
+    }
+   ]
+  },
+  {
+   "name": "m-8",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-m",
+     "rotate": 180
+    }
+   ]
+  },
+  {
+   "name": "m-9",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-m",
+     "rotate": 203
+    }
+   ]
+  },
+  {
+   "name": "m-10",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-m",
+     "rotate": 225
+    }
+   ]
+  },
+  {
+   "name": "m-11",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-m",
+     "rotate": 248
+    }
+   ]
+  },
+  {
+   "name": "m-12",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-m",
+     "rotate": 270
+    }
+   ]
+  },
+  {
+   "name": "m-13",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-m",
+     "rotate": 293
+    }
+   ]
+  },
+  {
+   "name": "m-14",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-m",
+     "rotate": 315
+    }
+   ]
+  },
+  {
+   "name": "m-15",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-m",
+     "rotate": 338
+    }
+   ]
+  },
+  {
+   "name": "s-0",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-s",
+     "rotate": 0
+    }
+   ]
+  },
+  {
+   "name": "s-1",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-s",
+     "rotate": 23
+    }
+   ]
+  },
+  {
+   "name": "s-2",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-s",
+     "rotate": 45
+    }
+   ]
+  },
+  {
+   "name": "s-3",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-s",
+     "rotate": 68
+    }
+   ]
+  },
+  {
+   "name": "s-4",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-s",
+     "rotate": 90
+    }
+   ]
+  },
+  {
+   "name": "s-5",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-s",
+     "rotate": 113
+    }
+   ]
+  },
+  {
+   "name": "s-6",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-s",
+     "rotate": 135
+    }
+   ]
+  },
+  {
+   "name": "s-7",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-s",
+     "rotate": 158
+    }
+   ]
+  },
+  {
+   "name": "s-8",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-s",
+     "rotate": 180
+    }
+   ]
+  },
+  {
+   "name": "s-9",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-s",
+     "rotate": 203
+    }
+   ]
+  },
+  {
+   "name": "s-10",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-s",
+     "rotate": 225
+    }
+   ]
+  },
+  {
+   "name": "s-11",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-s",
+     "rotate": 248
+    }
+   ]
+  },
+  {
+   "name": "s-12",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-s",
+     "rotate": 270
+    }
+   ]
+  },
+  {
+   "name": "s-13",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-s",
+     "rotate": 293
+    }
+   ]
+  },
+  {
+   "name": "s-14",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-s",
+     "rotate": 315
+    }
+   ]
+  },
+  {
+   "name": "s-15",
+   "duration": 60,
+   "origin": [
+    17,
+    17
+   ],
+   "parts": [
+    {
+     "name": "rock",
+     "part": "rock-s",
+     "rotate": 338
+    }
+   ]
+  }
+ ],
+ "animations": {
+  "spin-l": {
+   "frames": [
+    "l-0",
+    "l-1",
+    "l-2",
+    "l-3",
+    "l-4",
+    "l-5",
+    "l-6",
+    "l-7",
+    "l-8",
+    "l-9",
+    "l-10",
+    "l-11",
+    "l-12",
+    "l-13",
+    "l-14",
+    "l-15"
+   ]
+  },
+  "spin-m": {
+   "frames": [
+    "m-0",
+    "m-1",
+    "m-2",
+    "m-3",
+    "m-4",
+    "m-5",
+    "m-6",
+    "m-7",
+    "m-8",
+    "m-9",
+    "m-10",
+    "m-11",
+    "m-12",
+    "m-13",
+    "m-14",
+    "m-15"
+   ]
+  },
+  "spin-s": {
+   "frames": [
+    "s-0",
+    "s-1",
+    "s-2",
+    "s-3",
+    "s-4",
+    "s-5",
+    "s-6",
+    "s-7",
+    "s-8",
+    "s-9",
+    "s-10",
+    "s-11",
+    "s-12",
+    "s-13",
+    "s-14",
+    "s-15"
+   ]
+  }
+ }
+}

@@ -1,79 +1,66 @@
 # Neon Voyage
 
-Neon Voyage is an exciting browser-based game where you pilot a sleek neon rocket through a treacherous asteroid field. Test your reflexes and see how long you can survive in this vibrant, retro-futuristic space adventure!
+**[Play Neon Voyage in your browser](https://skulitom.github.io/NeonRocketGame/)**: a free pixel-art rocket game for phones, tablets and computers. No download, no account.
 
-## Features
+[![Neon Voyage: a pixel-art rocket flying between neon asteroids](assets/og-image.png)](https://skulitom.github.io/NeonRocketGame/)
 
-- Smooth, responsive rocket controls
-- Dynamic obstacle generation
-- Increasing difficulty as you progress
-- Visually stunning neon graphics
-- Realistic rocket physics and breakdown mechanics
-- Score tracking
-- Mobile-friendly touch controls
+Fly a neon rocket through an endless asteroid field. Graze rocks for points and a bigger multiplier, collect lines of shards, and grab shields, boosts and novas. Every so often a meteor storm rolls in.
 
-## How to Play
+## Controls
 
-1. Open the `Optimized Neon Rocket Game HTML.html` file in a modern web browser.
-2. Use the left and right arrow keys (on desktop) or the on-screen buttons (on mobile) to navigate your rocket.
-3. Avoid colliding with the colorful asteroids.
-4. Try to survive as long as possible and achieve the highest score!
+| Device | Steer | Other |
+| --- | --- | --- |
+| Computer | Arrow keys or WASD, or move the mouse over the game | P or Esc pauses, M turns sound off and on |
+| Phone or tablet | Drag anywhere: the rocket moves as your finger moves, so your thumb never covers it | Pause and sound buttons in the corner |
+| Gamepad | Left stick or d-pad | A starts, Start pauses |
 
-## Game Controls
+## Made with Pixelbolt
 
-- Desktop:
-  - Left Arrow: Move the rocket to the left
-  - Right Arrow: Move the rocket to the right
-- Mobile:
-  - Left Button: Move the rocket to the left
-  - Right Button: Move the rocket to the right
+Every sprite, effect and letter is a [Pixelbolt](https://github.com/skulitom/Pixelbolt) recipe in [`art/`](art/), written by an AI agent that inspected each render and fixed it, the way Pixelbolt is meant to be used. [`art/build.mjs`](art/build.mjs) turns them into the atlases in `assets/`.
 
-## Installation and Serving the Game
+| | |
+| --- | --- |
+| ![The rocket's banking frames](media/rocket.png) | **Rocket** ([rocket.json](art/rocket.json)): a palette grid in five banking frames. |
+| ![Three neon asteroids turning](media/rocks.gif) | **Asteroids** ([rocks.poses.json](art/rocks.poses.json)): three rock bodies turned through 16 angles by RotSprite rotation, then lit from a fixed light with a neon edge and glow. Three colours are copies with the neon remapped. |
+| ![The rocket's exhaust plume](media/exhaust.gif) | **Exhaust** ([exhaust.fluid.json](art/exhaust.fluid.json)): a fluid simulation the game runs live with Pixelbolt's `createLiveFluid`. Steering stirs the gas and a boost flares it. This GIF is the baked loop the game shows until the solver has loaded. |
+| ![The rocket exploding](media/boom.gif) | **Effects** ([boom.fx.json](art/boom.fx.json), [bursts.fx.json](art/bursts.fx.json), [shield.fx.json](art/shield.fx.json), [nova.fx.json](art/nova.fx.json)): particles and shapes (shock rings, impact stars, fireballs, tumbling debris, a boiling shield bubble). |
+| ![Shield power-up](media/shield.gif) ![Boost power-up](media/boost.gif) ![Nova power-up](media/nova.gif) | **Power-ups** ([items.json](art/items.json)): one ring and three icons, recoloured with `remap` and pulsing by palette cycling. |
 
-No installation is required to play locally! Simply download the `Optimized Neon Rocket Game HTML.html` file and open it in your web browser to start playing.
+The starfield ([stars.json](art/stars.json)) is noise dithering with twinkling by colour remaps, the planet and nebulae ([space.json](art/space.json)) use ramp shading and value-noise dither, the score and messages use Pixelbolt's built-in pixel font, the logo ([logo.json](art/logo.json)) is that font with neon outlines, and the link preview image is a Pixelbolt scene ([og.scene.json](art/og.scene.json)). The page draws everything with Pixelbolt's atlas runtime ([`vendor/pixelbolt/runtime.js`](vendor/pixelbolt/runtime.js)).
 
-If you want to serve the game or make it accessible online, you can use Python's built-in HTTP server and ngrok. Here's how:
+### Rebuilding the art
 
-1. Open a terminal in the directory containing the game file.
+The art was built with Pixelbolt at commit [`6670597`](https://github.com/skulitom/Pixelbolt/commit/6670597). With Node.js 20 or newer:
 
-2. Start a Python HTTP server:
-   ```
-   python3 -m http.server
-   ```
-   This will start a server on port 8000 by default.
+```sh
+git clone https://github.com/skulitom/Pixelbolt.git ../Pixelbolt
+git -C ../Pixelbolt checkout 6670597
+node art/build.mjs --pixelbolt ../Pixelbolt
+```
 
-3. In another terminal, use ngrok to expose your local server:
-   ```
-   ngrok http 8000
-   ```
+The build is deterministic: the same sources and commit give the same bytes. It also copies the Pixelbolt modules the page runs (the fluid solver and the atlas runtime, MIT licensed) into `vendor/pixelbolt/`. Add `--keep <folder>` to write each compiled recipe there, to inspect with `pixelbolt inspect`.
 
-4. ngrok will provide a public URL. You can access the game by appending `/Optimized Neon Rocket Game HTML.html` to this URL.
-   For example: `https://your-ngrok-url.ngrok.io/Optimized Neon Rocket Game HTML.html`
+## Running locally
 
-This method is great for testing or sharing the game without needing to deploy it to a web server.
+The page uses ES modules, so serve the folder over HTTP rather than opening the file:
 
-## Technical Details
+```sh
+python -m http.server 8000
+```
 
-- The game is built using HTML5 Canvas and vanilla JavaScript.
-- It features smooth animations and particle effects for an immersive experience.
-- The code is optimized for performance, using techniques like off-screen rendering for stars.
-- Responsive design allows for gameplay on both desktop and mobile devices.
+Then open <http://localhost:8000/>. On a local server, `window.neonVoyage.advance(ms)` steps the game without animation frames, for automated checks.
 
-## Customization
+## Project layout
 
-Feel free to modify the game to suit your preferences:
+- `index.html`, `css/`, `js/`: the page and the game (`game.js` rules and drawing, `input.js` keyboard, mouse, touch and gamepad, `exhaust.js` the live plume, `audio.js` synthesised sound and music).
+- `art/`: Pixelbolt recipes and sources, the brief, and the build.
+- `assets/`, `media/`: built atlases, icons and images. Don't edit them by hand; change the recipe and rebuild.
+- `vendor/pixelbolt/`: Pixelbolt's runtime and fluid modules, copied by the build.
 
-- Adjust the `CANVAS_WIDTH` and `CANVAS_HEIGHT` constants to change the game window size.
-- Modify the `INITIAL_SCROLL_SPEED` constant to change the game's initial pace.
-- Alter the `OBSTACLE_SPAWN_CHANCE` constant to change the frequency of asteroids.
-- Customize colors and styles in the CSS section to give the game your personal touch.
+## History
 
-## Contributing
+The first Neon Voyage (2024) drew its rocket and asteroids with canvas shapes. It was remade in November 2026 with Pixelbolt art, touch and gamepad controls, grazing and multipliers, power-ups that work as described, a pause, synthesised sound, and a page that scales by whole pixels on any screen.
 
-Contributions to Neon Voyage are welcome! If you have ideas for improvements or new features, feel free to fork the repository, make your changes, and submit a pull request.
+## Licence
 
-## License
-
-This project is open source and available under the [MIT License](https://opensource.org/licenses/MIT).
-
-Enjoy your Neon Voyage through space!
+[MIT](LICENSE). Pixelbolt's files in `vendor/pixelbolt/` keep their own [MIT licence](vendor/pixelbolt/LICENSE).

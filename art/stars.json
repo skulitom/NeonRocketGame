@@ -1,0 +1,174 @@
+{
+ "version": 1,
+ "name": "stars",
+ "width": 128,
+ "height": 128,
+ "palette": {
+  "$ref": "palette.json",
+  "A": "#c9feff",
+  "B": "#d0b8ff",
+  "Z": "#fff4ad"
+ },
+ "symbols": {
+  "sparkle": [
+   ".c.",
+   "cAc",
+   ".c."
+  ],
+  "sparkle-v": [
+   ".v.",
+   "vBv",
+   ".v."
+  ],
+  "sparkle-y": [
+   ".o.",
+   "oZo",
+   ".o."
+  ]
+ },
+ "frames": [
+  {
+   "name": "far",
+   "duration": 1000,
+   "wrap": true,
+   "ops": [
+    {
+     "op": "dither",
+     "color": "3",
+     "density": 0.009,
+     "pattern": "noise",
+     "seed": 11
+    },
+    {
+     "op": "dither",
+     "color": "4",
+     "density": 0.004,
+     "pattern": "noise",
+     "seed": 12
+    },
+    {
+     "op": "dither",
+     "color": "e",
+     "density": 0.002,
+     "pattern": "noise",
+     "seed": 13
+    }
+   ]
+  },
+  {
+   "name": "near-0",
+   "duration": 300,
+   "ops": [
+    {
+     "op": "dither",
+     "color": "f",
+     "density": 0.0025,
+     "pattern": "noise",
+     "seed": 21
+    },
+    {
+     "op": "dither",
+     "color": "A",
+     "density": 0.0012,
+     "pattern": "noise",
+     "seed": 22
+    },
+    {
+     "op": "dither",
+     "color": "B",
+     "density": 0.0012,
+     "pattern": "noise",
+     "seed": 23
+    },
+    {
+     "op": "stamp",
+     "symbol": "sparkle",
+     "x": 17,
+     "y": 22
+    },
+    {
+     "op": "stamp",
+     "symbol": "sparkle-v",
+     "x": 88,
+     "y": 9
+    },
+    {
+     "op": "stamp",
+     "symbol": "sparkle-y",
+     "x": 61,
+     "y": 71
+    },
+    {
+     "op": "stamp",
+     "symbol": "sparkle",
+     "x": 110,
+     "y": 98
+    },
+    {
+     "op": "stamp",
+     "symbol": "sparkle-v",
+     "x": 30,
+     "y": 112
+    }
+   ]
+  },
+  {
+   "name": "near-1",
+   "duration": 220,
+   "ops": [
+    {
+     "op": "copy",
+     "from": "near-0",
+     "remap": {
+      "A": "c",
+      "Z": "y"
+     }
+    }
+   ]
+  },
+  {
+   "name": "near-2",
+   "duration": 300,
+   "ops": [
+    {
+     "op": "copy",
+     "from": "near-0",
+     "remap": {
+      "A": "C",
+      "B": "v",
+      "Z": "o"
+     }
+    }
+   ]
+  },
+  {
+   "name": "near-3",
+   "duration": 220,
+   "ops": [
+    {
+     "op": "copy",
+     "from": "near-0",
+     "remap": {
+      "B": "i",
+      "Z": "y"
+     }
+    }
+   ]
+  }
+ ],
+ "animations": {
+  "far": {
+   "frames": [
+    "far"
+   ]
+  },
+  "near": {
+   "frames": [
+    "near-0",
+    "near-1",
+    "near-2",
+    "near-3"
+   ]
+  }
+ }
+}

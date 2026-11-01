@@ -1,0 +1,34 @@
+{
+ "format": "pixelforge-scene",
+ "version": 1,
+ "name": "og",
+ "width": 240,
+ "height": 126,
+ "background": "#07040f",
+ "assets": {
+  "stars": "stars.json",
+  "space": "space.json",
+  "rocket": "rocket.json",
+  "items": "items.json",
+  "logo": "logo.json"
+ },
+ "instances": [
+  { "name": "far", "asset": "stars", "frame": "far", "at": [0, 0], "repeat": [2, 1], "step": [128, 0] },
+  { "name": "nebula", "asset": "space", "frame": "nebula-a", "at": [118, 40] },
+  { "name": "nebula-2", "asset": "space", "frame": "nebula-b", "at": [-30, -20] },
+  { "name": "planet", "asset": "space", "frame": "planet", "at": [140, -14] },
+  { "name": "near", "asset": "stars", "frame": "near-0", "at": [0, 0], "repeat": [2, 1], "step": [128, 0] },
+  { "name": "rock-a", "asset": "rocks", "frame": "pink-l-3", "anchor": "frame", "at": [206, 78] },
+  { "name": "rock-b", "asset": "rocks", "frame": "orange-m-9", "anchor": "frame", "at": [128, 22] },
+  { "name": "rock-c", "asset": "rocks", "frame": "violet-s-5", "anchor": "frame", "at": [225, 110] },
+  { "name": "rock-d", "asset": "rocks", "frame": "violet-m-12", "anchor": "frame", "at": [134, 108] },
+  { "name": "shard-1", "asset": "items", "frame": "shard-0", "anchor": "frame", "at": [146, 60] },
+  { "name": "shard-2", "asset": "items", "frame": "shard-1", "anchor": "frame", "at": [138, 48] },
+  { "name": "shard-3", "asset": "items", "frame": "shard-2", "anchor": "frame", "at": [130, 36] },
+  { "name": "shield", "asset": "items", "frame": "shield-1", "anchor": "frame", "at": [118, 70] },
+  { "name": "exhaust", "asset": "exhaust", "frame": "down-14", "anchor": "frame", "at": [165, 89] },
+  { "name": "rocket", "asset": "rocket", "frame": "bank-r1", "anchor": "frame", "at": [165, 77] },
+  { "name": "logo", "asset": "logo", "frame": "logo", "at": [8, 30] },
+  { "name": "tagline", "asset": "tagline", "frame": "tagline", "at": [8, 80] }
+ ]
+}
