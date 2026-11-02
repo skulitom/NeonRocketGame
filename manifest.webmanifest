@@ -1,7 +1,7 @@
 {
   "name": "Neon Voyage",
   "short_name": "Neon Voyage",
-  "description": "A free pixel-art rocket game: dodge neon asteroids, graze them for points and grab power-ups.",
+  "description": "A free pixel-art rocket game: dodge neon asteroids at speed, where every near miss makes you faster.",
   "start_url": "./",
   "scope": "./",
   "display": "fullscreen",

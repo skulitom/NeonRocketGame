@@ -2,9 +2,9 @@
 
 **[Play Neon Voyage in your browser](https://skulitom.github.io/NeonRocketGame/)**: a free pixel-art rocket game for phones, tablets and computers. No download, no account.
 
-<a href="https://skulitom.github.io/NeonRocketGame/"><img src="media/gameplay.gif" width="300" alt="Neon Voyage gameplay: a small pixel-art rocket darts side to side between neon asteroids in a meteor storm, picks up a shield, then breaks apart when a rock hits it"></a>
+<a href="https://skulitom.github.io/NeonRocketGame/"><img src="media/gameplay.gif" width="300" alt="Neon Voyage gameplay: a small pixel-art rocket threads the gap in a wall of neon asteroids and skims rocks until its speed gauge reads MAX SPEED and space streaks past, then breaks apart when a rock hits it"></a>
 
-Fly a small, quick neon rocket side to side through an endless asteroid field. It leans into every turn and breaks apart when it hits. Graze rocks for points and a bigger multiplier, collect lines of shards, and grab shields, boosts and novas. The asteroids knock each other about, and every so often a meteor storm rolls in.
+Fly a small, quick neon rocket side to side through an endless asteroid field. It leans into every turn and breaks apart when it hits. Every near miss makes it faster and multiplies your points, so the best runs are the closest ones. Thread the gaps in walls of rocks, collect lines of shards, and grab shields, boosts and novas. The asteroids knock each other about, and every so often a meteor storm rolls in.
 
 ## Controls
 

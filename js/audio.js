@@ -2,7 +2,7 @@
 // Browsers start audio only after a tap or key press, so nothing is created until unlock() runs from one.
 let ctx = null, master = null, sfxBus = null, musicBus = null, noise = null;
 let soundOn = true, musicOn = true;
-let music = null;
+let music = null, wind = null, paceLevel = 0, paceSent = -1;
 
 export function unlock() {
   if (!ctx) {
@@ -72,7 +72,17 @@ export const sfx = {
     const f = 880 * 2 ** ([0, 2, 4, 7, 9, 12, 14, 16][shardStep] / 12);
     tone({ type: 'square', from: f, to: f * 1.5, time: 0.08, gain: 0.12 });
   },
-  graze() { if (ready()) tone({ type: 'triangle', from: 1760, to: 2640, time: 0.06, gain: 0.14 }); },
+  // Each near miss whooshes past and pings a little higher as the speed gauge fills.
+  graze(surge = 0) {
+    if (!ready()) return;
+    const f = 1320 * 2 ** surge;
+    tone({ type: 'triangle', from: f, to: f * 1.5, time: 0.07, gain: 0.14 });
+    hiss({ time: 0.16, gain: 0.16, from: 6000, to: 900, type: 'bandpass', q: 1.4 });
+  },
+  maxSpeed() {
+    if (!ready()) return;
+    [659, 880, 1175, 1568].forEach((f, i) => tone({ type: 'sawtooth', from: f, to: f * 1.02, time: 0.14, gain: 0.1, at: i * 0.045 }));
+  },
   power() {
     if (!ready()) return;
     [523, 659, 784, 1047].forEach((f, i) => tone({ type: 'square', from: f, time: 0.1, gain: 0.12, at: i * 0.05 }));
@@ -91,9 +101,34 @@ export const sfx = {
   knock(strength = 0.5) { if (ready()) { hiss({ time: 0.08, gain: 0.12 * strength, from: 1400, to: 300, type: 'bandpass', q: 2 }); tone({ type: 'triangle', from: 150, to: 70, time: 0.09, gain: 0.18 * strength }); } },
 };
 
+// ---------------------------------------------------------------- pace
+// The rush of speed: a wind of filtered noise that rises and brightens with the speed, and a music tempo that climbs
+// from 108 to 156 BPM. level: 0 cruising (or not flying) to 1 flat out.
+export function pace(level) {
+  paceLevel = level;
+  if (!ctx || ctx.state !== 'running' || Math.abs(level - paceSent) < 0.01) return;
+  paceSent = level;
+  if (!wind) {
+    const length = ctx.sampleRate * 4, buffer = ctx.createBuffer(1, length, ctx.sampleRate), data = buffer.getChannelData(0);
+    let seed = 7, last = 0;
+    for (let i = 0; i < length; i++) { seed = (seed * 16807) % 2147483647; last = last * 0.6 + (seed / 1073741823.5 - 1) * 0.4; data[i] = last * 1.8; }
+    const src = ctx.createBufferSource(), filter = ctx.createBiquadFilter(), gain = ctx.createGain();
+    src.buffer = buffer; src.loop = true;
+    filter.type = 'bandpass'; filter.Q.value = 0.8; filter.frequency.value = 400;
+    gain.gain.value = 0;
+    src.connect(filter).connect(gain).connect(sfxBus);
+    src.start();
+    wind = { filter, gain };
+  }
+  const t = ctx.currentTime;
+  wind.filter.frequency.setTargetAtTime(350 + 2600 * level, t, 0.2);
+  wind.gain.gain.setTargetAtTime(level > 0.02 ? 0.04 + 0.3 * level * level : 0, t, level > 0.02 ? 0.2 : 0.08);
+}
+
 // ---------------------------------------------------------------- music
-// A 16-step loop at 108 BPM in A minor: a pulsing bass, a slow pad and a sparse arpeggio, scheduled a little ahead.
-const BPM = 108, STEP = 60 / BPM / 4;
+// A 16-step loop in A minor: a pulsing bass, a slow pad and a sparse arpeggio, scheduled a little ahead. Its tempo
+// follows the speed.
+const tempo = () => 108 + 48 * paceLevel;
 const CHORDS = [[57, 60, 64], [53, 57, 60], [48, 52, 55], [55, 59, 62]]; // Am F C G
 const hz = midi => 440 * 2 ** ((midi - 69) / 12);
 
@@ -105,7 +140,7 @@ export function startMusic() {
     while (music.next < ctx.currentTime + 0.25) {
       playStep(music.step, music.next);
       music.step = (music.step + 1) % 64;
-      music.next += STEP;
+      music.next += 60 / tempo() / 4;
     }
     music.timer = setTimeout(schedule, 60);
   };
@@ -129,6 +164,7 @@ function voice(type, freq, start, length, gain, cutoff) {
 }
 
 function playStep(step, t) {
+  const STEP = 60 / tempo() / 4;
   const chord = CHORDS[Math.floor(step / 16)], beat = step % 16;
   if (beat % 2 === 0) voice('sawtooth', hz(chord[0] - 24), t, STEP * 1.6, 0.5, 420 + (beat % 4 === 0 ? 300 : 0));
   if (beat === 0) for (const note of chord) voice('triangle', hz(note), t, STEP * 15, 0.12, 1800);
