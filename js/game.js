@@ -21,15 +21,14 @@ const PIECES = {                       // where each crash piece sits on the upr
   nose: [0, -9.5], cockpit: [0, -2.5], tail: [0, 7], 'fin-l': [-6.5, 6], 'fin-r': [6.5, 6],
 };
 const SHIELD_TIME = 8, BOOST_TIME = 4.5;
-// Speed is the game. The field's base speed climbs for RAMP seconds; near misses add surge on top, up to TOP more
-// speed and a x5 multiplier. Surge holds for a moment after each near miss, then bleeds away, so the way to stay fast
-// is to keep flying close. Speeds are relative to the screen: at speed S a rock falls from the top to the rocket in
-// 280 / S seconds, on a phone or a monitor.
-const BASE = [125, 205], RAMP = 150;
+// Speed is the game. The asteroids speed up for as long as you last, with no limit: the speed grows by START every
+// CLIMB seconds, so sooner or later nobody can keep up. Near misses add surge on top, up to TOP more speed and a x5
+// multiplier. Surge holds for a moment after each near miss, then bleeds away, so the way to stay fast is to keep
+// flying close. Speeds are relative to the screen: at speed S a rock falls from the top to the rocket in 280 / S
+// seconds, on a phone or a monitor. The field also fills in over its first RAMP seconds.
+const START = 130, CLIMB = 60, RAMP = 150;
 const SURGE = { graze: 0.09, shard: 0.012, line: 0.04, hold: 1.6, fade: 0.08, top: 0.65 };
 const GAP = [30, 17];                  // travel between random rocks at the start and after RAMP, per 240-pixel lane
-const WALL = { gap: [44, 32], every: [1300, 750], row: [0.9, 0.68] };
-const DUST = 96;
 
 function rng(seed) {                   // mulberry32: a seed makes a run repeatable for tests
   return () => {
@@ -54,7 +53,6 @@ export class Game {
     this.touch = false;
     this.random = rng(seed);
     this.sparkle = rng(seed ^ 0x5bd1e995);  // drawing's own randomness, so the frame rate never changes a run
-    this.dust = [];
     this.vw = 240; this.vh = 400; this.insets = { top: 0, bottom: 0 };
     this.fw = 240; this.fx = 0;
     this.mode = 'title';
@@ -80,13 +78,13 @@ export class Game {
   get rush() { return clamp((this.speed - 100) / 240, 0, 1); }
 
   reset() {
-    this.rocket = { x: this.fx + this.fw / 2, y: this.homeY(), vx: 0, tilt: 0, flash: 0, thrust: 0, dip: 0 };
+    this.rocket = { x: this.fx + this.fw / 2, y: this.homeY(), vx: 0, tilt: 0, flash: 0, thrust: 0 };
     this.rocks = []; this.shards = []; this.items = []; this.effects = []; this.popups = []; this.pieces = [];
     this.time = 0; this.score = 0; this.surge = 0; this.lastGraze = -9; this.maxed = false;
     this.speed = 70; this.boost = 0; this.shield = 0; this.invuln = 0;
-    this.shake = 0; this.flash = 0; this.edge = 0;
+    this.shake = 0; this.flash = 0;
     this.stats = { shards: 0, grazes: 0, smashed: 0, powerups: 0 };
-    this.timers = { rock: 0, shards: 2.5, item: 15, storm: 30, storming: 0, wall: 0 };
+    this.timers = { rock: 0, shards: 2.5, item: 15, storm: 30, storming: 0 };
     this.lineCounts = new Map();
     this.far = 0; this.near = 0; this.exhaustClock = 0; this.knocked = 0;
     this.dyingFor = 0; this.newBest = false;
@@ -95,7 +93,6 @@ export class Game {
   start() {
     this.reset();
     this.mode = 'playing';
-    this.timers.wall = 900 * this.scale; // the first wall comes a few seconds in
   }
 
   // ------------------------------------------------------------ update
@@ -105,8 +102,8 @@ export class Game {
     const playing = this.mode === 'playing', wrecked = this.mode === 'dying' || this.mode === 'over';
     if (playing) this.time += dt;
 
-    // World speed: the base climbs over RAMP seconds, surge and boosts push past it, and a crash slows it to a drift.
-    const base = lerp(BASE[0], BASE[1], clamp(this.time / RAMP, 0, 1));
+    // World speed: the base climbs for as long as you fly, surge and boosts push past it, and a crash slows it to a drift.
+    const base = START * (1 + this.time / CLIMB);
     const target = this.mode === 'title' ? 70 : wrecked ? 22 : base * (1 + SURGE.top * this.surge) * (this.boost > 0 ? 1.45 : 1);
     this.speed = lerp(this.speed, target, 1 - Math.exp(-dt * (this.boost > 0 ? 6 : wrecked ? 2 : 4)));
     const v = this.speed * this.scale;
@@ -115,7 +112,6 @@ export class Game {
     for (const d of this.decor) d.y += v * d.parallax * dt;
     this.decor = this.decor.filter(d => d.y < this.vh + 100);
     if (this.decor.length < 2 && this.random() < dt * 0.04) this.addDecor(-110);
-    this.streak(dt, v);
 
     if (playing) {
       this.steer(dt, input.direction());
@@ -132,9 +128,7 @@ export class Game {
     }
     const r = this.rocket;
     r.flash = Math.max(0, r.flash - dt);
-    // A burst of speed presses the rocket back a few pixels, and it settles a little lower the faster it goes.
-    r.dip *= Math.exp(-dt * 7);
-    r.y = this.homeY() + Math.sin(this.clock / 1000 * 2.5) * 1.5 + r.dip + (playing ? this.surge * 5 : 0);
+    r.y = this.homeY() + Math.sin(this.clock / 1000 * 2.5) * 1.5;
     pace(this.mode === 'playing' ? this.rush : 0);
 
     this.spawn(dt, v);
@@ -167,8 +161,7 @@ export class Game {
   tiltFrame() { return TILTS[clamp(Math.round(this.rocket.tilt / 10), -3, 3) + 3]; }
 
   // ------------------------------------------------------------ spawning
-  // Rocks come by distance flown, not by time, so going faster means meeting them sooner. Every so often a wall of
-  // rocks crosses the lane with one gap in it, or a slalom of walls with gaps on alternating sides.
+  // Rocks come by distance flown, not by time, so going faster means meeting them sooner.
   spawn(dt, v) {
     const t = this.timers, ramp = clamp(this.time / RAMP, 0, 1), unit = this.scale * 240 / this.fw;
     const title = this.mode === 'title', playing = this.mode === 'playing';
@@ -179,19 +172,12 @@ export class Game {
     }
     if (this.mode === 'over') return;
     t.rock -= v * dt;
-    if (playing && t.wall < 70 * this.scale) t.rock = Math.max(t.rock, t.wall + 1); // clear air ahead of a wall
     if (t.rock <= 0) {
       const gap = title ? 70 : lerp(GAP[0], GAP[1], ramp) / (t.storming ? 2.2 : 1);
       t.rock = gap * unit * (0.6 + this.random() * 0.8);
       this.addRock(ramp, Boolean(t.storming));
     }
     if (!playing) return;
-    t.wall -= v * dt;
-    if (t.wall <= 0 && !t.storming) {
-      const span = this.addWalls(ramp);
-      t.wall = lerp(WALL.every[0], WALL.every[1], ramp) * this.scale * (0.8 + this.random() * 0.4) + span;
-      t.rock = Math.max(t.rock, span + 70 * this.scale); // and behind it
-    }
     t.shards -= dt;
     if (t.shards <= 0) { t.shards = 3.2 + this.random() * 2; this.addShardLine(); }
     t.item -= dt;
@@ -210,33 +196,6 @@ export class Game {
       rot: this.random() * 16, spin: (this.random() < 0.5 ? -1 : 1) * (4 + this.random() * 10),
       grazed: false, doom: null,
     });
-  }
-
-  // One wall, or a slalom of three or four, each a row of rocks across the lane with a single gap. Slalom rows come
-  // a fixed time apart at the current speed, with their gaps on alternating sides. Returns the span in pixels.
-  addWalls(ramp) {
-    const { fx, fw } = this, slalom = this.random() < lerp(0.3, 0.6, ramp);
-    const rows = slalom ? 3 + (this.random() < ramp ? 1 : 0) : 1;
-    const apart = this.speed * this.scale * lerp(WALL.row[0], WALL.row[1], ramp);
-    const gap = lerp(WALL.gap[0], WALL.gap[1], ramp), body = ROCKS.m.body, step = body * 2 + 2;
-    let side = this.random() < 0.5 ? -1 : 1;
-    for (let i = 0; i < rows; i++) {
-      const centre = slalom
-        ? fx + fw * (side < 0 ? 0.22 : 0.78) + (this.random() - 0.5) * fw * 0.12
-        : fx + fw * (0.18 + this.random() * 0.64);
-      side = -side;
-      const neon = NEONS[Math.floor(this.random() * 3)], y = -16 - i * apart, spin = this.random() < 0.5 ? -1 : 1;
-      const count = Math.floor((fw - body * 2) / step) + 1, x0 = fx + (fw - (count - 1) * step) / 2;
-      for (let j = 0; j < count; j++) {
-        const x = x0 + j * step;
-        if (Math.abs(x - centre) < gap / 2 + body) continue;
-        this.rocks.push({
-          size: 'm', neon, x, y, vx: 0, vy: this.speed * this.scale, k: 1, wall: true,
-          rot: (j * 5) % 16, spin: spin * (5 + (j % 3) * 2), grazed: false, doom: null,
-        });
-      }
-    }
-    return (rows - 1) * apart + 20;
   }
 
   addShardLine() {
@@ -272,25 +231,6 @@ export class Game {
   }
 
   // ------------------------------------------------------------ motion
-  // Space dust between the stars and the rocks, each speck at its own depth: it streams past faster than the rocks
-  // and stretches into streaks as the speed climbs.
-  streak(dt, v) {
-    while (this.dust.length < DUST) this.dust.push(this.speck(this.sparkle() * this.vh));
-    for (const d of this.dust) {
-      d.y += v * d.z * dt;
-      if (d.y - this.speckLength(d, v) > this.vh) Object.assign(d, this.speck(-this.sparkle() * 40));
-    }
-  }
-  // The nearest specks keep to the lane's outer thirds and the margins, so the streaks frame the rocks, not hide them.
-  speck(y) {
-    const z = 0.5 + this.sparkle() * 2.8, u = this.sparkle(), reach = this.fw * 0.3 + 40;
-    const x = z <= 2.3 ? u * this.vw
-      : u < 0.5 ? this.fx + this.fw * 0.3 - u * 2 * reach
-      : this.fx + this.fw * 0.7 + (u - 0.5) * 2 * reach;
-    return { x: Math.floor(clamp(x, 0, this.vw - 1)), y, z };
-  }
-  speckLength(d, v) { return clamp(v * d.z / (this.reducedMotion ? 120 : 34), 1, 72); }
-
   move(dt, v) {
     const settle = 1 - Math.exp(-dt * 1.5);
     for (const rock of this.rocks) {
@@ -319,17 +259,16 @@ export class Game {
   }
 
   // Asteroids knock each other about, as they did in the original: pushed apart where they overlap, and a bounce
-  // that trades momentum along the line between them, so a big rock shoves a small one aside. A wall is held
-  // together: its rocks weigh as much as twelve, so stray rocks bounce off it without closing its gap.
+  // that trades momentum along the line between them, so a big rock shoves a small one aside.
   collideRocks() {
     const rocks = this.rocks;
     for (let i = 0; i < rocks.length; i++) for (let j = i + 1; j < rocks.length; j++) {
       const a = rocks[i], b = rocks[j];
-      if (a.dead || b.dead || (a.wall && b.wall)) continue;
+      if (a.dead || b.dead) continue;
       const reach = ROCKS[a.size].body + ROCKS[b.size].body;
       const dx = b.x - a.x, dy = b.y - a.y, d2 = dx * dx + dy * dy;
       if (d2 >= reach * reach || d2 === 0) continue;
-      const ma = ROCKS[a.size].mass * (a.wall ? 12 : 1), mb = ROCKS[b.size].mass * (b.wall ? 12 : 1);
+      const ma = ROCKS[a.size].mass, mb = ROCKS[b.size].mass;
       const d = Math.sqrt(d2), nx = dx / d, ny = dy / d, overlap = reach - d, total = ma + mb;
       a.x -= nx * overlap * mb / total; a.y -= ny * overlap * mb / total;
       b.x += nx * overlap * ma / total; b.y += ny * overlap * ma / total;
@@ -355,7 +294,6 @@ export class Game {
     this.pieces = this.pieces.filter(p => p.y < this.vh + 30);
     this.shake = Math.max(0, this.shake - dt * 30);
     this.flash = Math.max(0, this.flash - dt * 3);
-    this.edge = Math.max(0, this.edge - dt * 4);
     // Rocks marked by a nova shatter as its wave reaches them.
     for (const rock of this.rocks) if (rock.doom !== null && this.time >= rock.doom) this.smash(rock, false);
     this.rocks = this.rocks.filter(r => !r.dead);
@@ -395,7 +333,7 @@ export class Game {
         const mx = (rock.x + r.x) / 2, my = (rock.y + r.y) / 2;
         this.addEffect('bursts', 'graze', mx, my, 0.6);
         this.popup(`+${gain}`, mx, my - 8, 'cyan', 0.6);
-        r.dip = Math.min(6, r.dip + 3); this.edge = 1; this.kick(1.5);
+        this.kick(1.5);
         sfx.graze(this.surge);
       }
     }
@@ -431,7 +369,7 @@ export class Game {
     if (this.surge >= 1 && !this.maxed) {
       this.maxed = true;
       this.popup('MAX SPEED!', this.fx + this.fw / 2, this.vh * 0.35, 'pink', 1.2);
-      this.edge = 1.6; sfx.maxSpeed();
+      sfx.maxSpeed();
     }
   }
 
@@ -500,27 +438,12 @@ export class Game {
       draw(ctx, 'space', d.frame, d.x, Math.round(d.y));
     }
     ctx.globalAlpha = 1;
-    const v = this.speed * this.scale, smear = this.reducedMotion ? 0 : Math.min(6, Math.floor(v / 90));
     this.tile(ctx, 'far', this.far);
-    // The near stars smear into short trails as the speed climbs: copies a pixel apart, fading upward.
-    const near = frameOf('stars', 'near', ms);
-    for (let i = smear; i > 0; i--) { ctx.globalAlpha = 0.5 * (1 - i / (smear + 1)); this.tile(ctx, near, this.near - i); }
-    ctx.globalAlpha = 1;
-    this.tile(ctx, near, this.near);
-    this.dustLayer(ctx, v);
+    this.tile(ctx, frameOf('stars', 'near', ms), this.near);
     this.margins(ctx);
 
     for (const s of this.shards) draw(ctx, 'items', frameOf('items', 'shard', ms + s.phase), s.x, s.y);
     for (const item of this.items) draw(ctx, 'items', frameOf('items', item.type, ms + item.phase), item.x, item.y);
-    // Fast rocks leave two fading after-images where they were one and two frames ago.
-    if (!this.reducedMotion && v > 260) {
-      const fade = clamp((v - 260) / 200, 0, 1);
-      for (const [back, alpha] of [[2, 0.14], [1, 0.26]]) {
-        ctx.globalAlpha = alpha * fade;
-        for (const rock of this.rocks) draw(ctx, 'rocks', `${rock.neon}-${rock.size}-${Math.floor(rock.rot) % 16}`, rock.x, rock.y - rock.vy * back / 60);
-      }
-      ctx.globalAlpha = 1;
-    }
     for (const rock of this.rocks) draw(ctx, 'rocks', `${rock.neon}-${rock.size}-${Math.floor(rock.rot) % 16}`, rock.x, rock.y);
 
     const r = this.rocket;
@@ -566,25 +489,6 @@ export class Game {
     const dash = Math.floor(this.near * 2) % 24;
     ctx.fillStyle = '#62f4f8';
     for (let y = dash - 24; y < vh; y += 24) { ctx.fillRect(fx - 1, y, 1, 6); ctx.fillRect(fx + fw, y + 12, 1, 6); }
-  }
-
-  // Dust streaks: few and faint while cruising, a storm of long bright lines flat out. Deeper specks are dimmer.
-  dustLayer(ctx, v) {
-    const rush = this.mode === 'playing' || this.mode === 'paused' ? Math.max(this.rush, this.boost > 0 ? 1 : 0) : 0.15;
-    const shown = Math.round(DUST * (this.reducedMotion ? 0.3 : 0.35 + 0.65 * rush));
-    for (let i = 0; i < shown && i < this.dust.length; i++) {
-      const d = this.dust[i], len = Math.round(this.speckLength(d, v)), y = Math.round(d.y);
-      ctx.fillStyle = d.z > 2.3 ? `rgba(232,251,255,${(0.3 + 0.6 * rush).toFixed(2)})`
-        : d.z > 1.3 ? `rgba(98,244,248,${(0.25 + 0.45 * rush).toFixed(2)})` : 'rgba(118,92,214,0.5)';
-      ctx.fillRect(d.x, y - len, 1, len);
-    }
-    // A near miss flashes the lane's edges; flat out they pulse.
-    const glow = Math.max(this.edge, this.maxed && this.mode === 'playing' ? 0.35 + 0.25 * Math.sin(this.clock / 90) : 0);
-    if (glow > 0.02 && !this.reducedMotion) {
-      const alpha = Math.min(0.8, glow * 0.8).toFixed(2);
-      ctx.fillStyle = this.maxed ? `rgba(255,79,163,${alpha})` : `rgba(98,244,248,${alpha})`;
-      ctx.fillRect(this.fx, 0, 2, this.vh); ctx.fillRect(this.fx + this.fw - 2, 0, 2, this.vh);
-    }
   }
 
   hud(ctx, input) {
